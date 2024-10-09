@@ -25,17 +25,15 @@ class HomePage extends StatelessWidget {
     final body = Container(
       width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
-      child: Column(
-        children: [
-          Text(
+      child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Text(
             'Listas',
             style: TextStyle(
                 fontFamily: AppFonts.montserrat,
                 fontWeight: FontWeight.w500,
                 fontSize: 24.0),
-          ),
-        ],
-      ),
+          )),
     );
 
     return Scaffold(
