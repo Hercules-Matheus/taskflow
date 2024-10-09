@@ -1,5 +1,6 @@
+import 'package:TaskFlow/assets/colors/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:to_do_app/home_page.dart';
+import 'package:TaskFlow/home_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'TaskFlow',
       theme: ThemeData(
-        primaryColor: Colors.blue,
+        primaryColor: AppColors.primaryWhiteColor,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: HomePage(),
