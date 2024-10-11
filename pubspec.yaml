@@ -60,10 +60,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - lib/assets/images/app-icon.svg
+    - lib/assets/images/logo.svg
     - lib/assets/images/logo-horizontal.svg
     - lib/assets/images/logo-vertical.svg
     - lib/assets/images/generic-avatar.png
+    - lib/assets/images/to_do_list.svg
   fonts:
     - family: Montserrat
       fonts:
