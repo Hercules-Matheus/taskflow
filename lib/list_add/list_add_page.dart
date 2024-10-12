@@ -1,13 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 
-class ListAddPage extends StatelessWidget {
+class ListAddPage extends StatefulWidget {
   static String tag = 'list_add_page';
 
   const ListAddPage({super.key});
+
+  @override
+  _ListAddPageState createState() => _ListAddPageState();
+}
+
+class _ListAddPageState extends State<ListAddPage> {
+  final DateFormat _dateFormat = DateFormat('dd/MM/yyyy', 'pt_BR');
+  final _dateController = MaskedTextController(mask: '00/00/0000');
+
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting('pt_BR', null);
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 3653)),
+      locale: const Locale('pt', 'BR'),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.tertiaryGreenColor,
+              onPrimary: AppColors.secondaryWhiteColor,
+              surface: AppColors.secondaryWhiteColor,
+              onSurface: AppColors.primaryGreenColor,
+            ),
+            dialogBackgroundColor: AppColors.primaryWhiteColor,
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _dateController.text = _dateFormat.format(pickedDate);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +111,7 @@ class ListAddPage extends StatelessWidget {
                     const Row(
                       children: <Widget>[
                         Text(
-                          'Nome da lista',
+                          'Nova lista',
                           style: TextStyle(
                             color: AppColors.primaryGreenColor,
                             fontFamily: AppFonts.montserrat,
@@ -95,8 +142,8 @@ class ListAddPage extends StatelessWidget {
                                     color: AppColors.secondaryGreenColor,
                                   ),
                                 ),
-                                hintText: 'Digite aqui',
-                                hintStyle: TextStyle(
+                                labelText: 'Nome da lista',
+                                labelStyle: TextStyle(
                                   color: AppColors.primaryBlackColor,
                                   fontFamily: AppFonts.montserrat,
                                   fontSize: 12.0,
@@ -116,15 +163,46 @@ class ListAddPage extends StatelessWidget {
                       child: Row(
                         children: <Widget>[
                           Expanded(
-                            child: InputDatePickerFormField(
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime.now(),
+                            child: TextFormField(
+                              controller: _dateController,
+                              cursorColor: AppColors.secondaryGreenColor,
+                              decoration: InputDecoration(
+                                labelText: 'Data de conclusão',
+                                labelStyle: const TextStyle(
+                                  color: AppColors.primaryBlackColor,
+                                  fontFamily: AppFonts.montserrat,
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    _selectDate(context);
+                                  },
+                                  icon: const Icon(
+                                    Icons.calendar_today,
+                                    color: AppColors.secondaryGreenColor,
+                                  ),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: AppColors.secondaryGreenColor),
+                                ),
+                              ),
+                              keyboardType: TextInputType.datetime,
+                              validator: (value) {
+                                try {
+                                  _dateFormat.parseStrict(value!);
+                                  return null;
+                                } catch (e) {
+                                  return 'Formato de data inválido';
+                                }
+                              },
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 40),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
