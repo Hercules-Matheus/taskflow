@@ -19,6 +19,9 @@ class ListAddPage extends StatefulWidget {
 class _ListAddPageState extends State<ListAddPage> {
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy', 'pt_BR');
   final _dateController = MaskedTextController(mask: '00/00/0000');
+  final TextEditingController _taskNameController = TextEditingController();
+  final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -128,29 +131,39 @@ class _ListAddPageState extends State<ListAddPage> {
                       child: Row(
                         children: <Widget>[
                           Expanded(
-                            child: TextFormField(
-                              cursorColor: AppColors.secondaryGreenColor,
-                              style: const TextStyle(
-                                color: AppColors.primaryBlackColor,
-                                fontFamily: AppFonts.montserrat,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 16.0,
-                              ),
-                              decoration: const InputDecoration(
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: AppColors.secondaryGreenColor,
-                                  ),
-                                ),
-                                labelText: 'Nome da lista',
-                                labelStyle: TextStyle(
+                            child: Form(
+                              key: _formNameKey,
+                              child: TextFormField(
+                                controller: _taskNameController,
+                                cursorColor: AppColors.secondaryGreenColor,
+                                style: const TextStyle(
                                   color: AppColors.primaryBlackColor,
                                   fontFamily: AppFonts.montserrat,
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w300,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16.0,
                                 ),
+                                decoration: const InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: AppColors.secondaryGreenColor,
+                                    ),
+                                  ),
+                                  labelText: 'Nome da lista',
+                                  labelStyle: TextStyle(
+                                    color: AppColors.primaryBlackColor,
+                                    fontFamily: AppFonts.montserrat,
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                                keyboardType: TextInputType.text,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Este campo é obrigatório';
+                                  }
+                                  return null;
+                                },
                               ),
-                              keyboardType: TextInputType.text,
                             ),
                           ),
                         ],
@@ -163,40 +176,47 @@ class _ListAddPageState extends State<ListAddPage> {
                       child: Row(
                         children: <Widget>[
                           Expanded(
-                            child: TextFormField(
-                              controller: _dateController,
-                              cursorColor: AppColors.secondaryGreenColor,
-                              decoration: InputDecoration(
-                                labelText: 'Data de conclusão',
-                                labelStyle: const TextStyle(
-                                  color: AppColors.primaryBlackColor,
-                                  fontFamily: AppFonts.montserrat,
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    _selectDate(context);
-                                  },
-                                  icon: const Icon(
-                                    Icons.calendar_today,
-                                    color: AppColors.secondaryGreenColor,
+                            child: Form(
+                              key: _formDateKey,
+                              child: TextFormField(
+                                controller: _dateController,
+                                cursorColor: AppColors.secondaryGreenColor,
+                                decoration: InputDecoration(
+                                  labelText: 'Data de conclusão',
+                                  labelStyle: const TextStyle(
+                                    color: AppColors.primaryBlackColor,
+                                    fontFamily: AppFonts.montserrat,
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      _selectDate(context);
+                                    },
+                                    icon: const Icon(
+                                      Icons.calendar_today,
+                                      color: AppColors.secondaryGreenColor,
+                                    ),
+                                  ),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: AppColors.secondaryGreenColor),
                                   ),
                                 ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: AppColors.secondaryGreenColor),
-                                ),
+                                keyboardType: TextInputType.datetime,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Este campo é obrigatório';
+                                  }
+                                  try {
+                                    _dateFormat.parseStrict(value);
+                                    debugPrint(value);
+                                    return null;
+                                  } catch (e) {
+                                    return 'Formato de data inválido';
+                                  }
+                                },
                               ),
-                              keyboardType: TextInputType.datetime,
-                              validator: (value) {
-                                try {
-                                  _dateFormat.parseStrict(value!);
-                                  return null;
-                                } catch (e) {
-                                  return 'Formato de data inválido';
-                                }
-                              },
                             ),
                           ),
                         ],
@@ -222,8 +242,13 @@ class _ListAddPageState extends State<ListAddPage> {
                         ),
                         TextButton(
                           onPressed: () {
-                            // Lógica de salvar
-                            Navigator.pop(context);
+                            if (_formNameKey.currentState!.validate() &&
+                                _formDateKey.currentState!.validate()) {
+                              debugPrint(_taskNameController.text);
+                              debugPrint(_dateController.text);
+                            }
+
+                            // Navigator.pop(context);
                           },
                           child: const Text(
                             'Salvar',
