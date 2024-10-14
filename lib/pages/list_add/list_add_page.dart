@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
+import 'package:taskflow/models/list.dart';
+import 'package:taskflow/repository/list_repository.dart';
 
 class ListAddPage extends StatefulWidget {
   static String tag = 'list_add_page';
@@ -22,6 +24,19 @@ class _ListAddPageState extends State<ListAddPage> {
   final TextEditingController _taskNameController = TextEditingController();
   final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
+
+  void _addTask() {
+    // String listName = _taskNameController.text;
+    // String listDate = _dateController.text;
+
+    // Adiciona a nova tarefa ao repositório
+    ListRepository.addTask(
+        Lists(name: _taskNameController.text, date: _dateController.text));
+
+    // Limpa os campos de texto
+    _taskNameController.clear();
+    _dateController.clear();
+  }
 
   @override
   void initState() {
@@ -179,6 +194,12 @@ class _ListAddPageState extends State<ListAddPage> {
                             child: Form(
                               key: _formDateKey,
                               child: TextFormField(
+                                style: const TextStyle(
+                                  color: AppColors.primaryBlackColor,
+                                  fontFamily: AppFonts.montserrat,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16.0,
+                                ),
                                 controller: _dateController,
                                 cursorColor: AppColors.secondaryGreenColor,
                                 decoration: InputDecoration(
@@ -210,7 +231,6 @@ class _ListAddPageState extends State<ListAddPage> {
                                   }
                                   try {
                                     _dateFormat.parseStrict(value);
-                                    debugPrint(value);
                                     return null;
                                   } catch (e) {
                                     return 'Formato de data inválido';
@@ -244,11 +264,11 @@ class _ListAddPageState extends State<ListAddPage> {
                           onPressed: () {
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
-                              debugPrint(_taskNameController.text);
-                              debugPrint(_dateController.text);
-                            }
+                              _addTask();
 
-                            // Navigator.pop(context);
+                              print('salvo no repo');
+                            }
+                            Navigator.pop(context);
                           },
                           child: const Text(
                             'Salvar',

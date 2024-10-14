@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
-import 'package:taskflow/list_add/list_add_page.dart';
+import 'package:taskflow/models/list.dart';
+import 'package:taskflow/pages/list_add/list_add_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:taskflow/repository/list_repository.dart';
 
 class HomePage extends StatefulWidget {
   static String tag = 'home_page';
@@ -19,6 +21,8 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    List<Lists> taskName = ListRepository.getTasks();
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         systemNavigationBarColor: AppColors.primaryWhiteColor,
@@ -55,12 +59,25 @@ class HomePageState extends State<HomePage> {
                     fontSize: 24.0,
                   ),
                 ),
-              )
+              ),
             ],
           ),
-          const SizedBox(
+          SizedBox(
             height: 300,
-            child: Row(),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: taskName.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(taskName[index].name),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
           const Row(
             textDirection: TextDirection.ltr,
