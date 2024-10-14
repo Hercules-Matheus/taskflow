@@ -15,10 +15,10 @@ class ListAddPage extends StatefulWidget {
   const ListAddPage({super.key});
 
   @override
-  _ListAddPageState createState() => _ListAddPageState();
+  ListAddPageState createState() => ListAddPageState();
 }
 
-class _ListAddPageState extends State<ListAddPage> {
+class ListAddPageState extends State<ListAddPage> {
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy', 'pt_BR');
   final _dateController = MaskedTextController(mask: '00/00/0000');
   final TextEditingController _taskNameController = TextEditingController();
@@ -26,12 +26,11 @@ class _ListAddPageState extends State<ListAddPage> {
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
 
   void _addTask() {
-    // String listName = _taskNameController.text;
-    // String listDate = _dateController.text;
-
     // Adiciona a nova tarefa ao repositório
-    ListRepository.addTask(
-        Lists(name: _taskNameController.text, date: _dateController.text));
+    ListRepository.addTask(Lists(
+        name: _taskNameController.text,
+        date: _dateController.text,
+        isChecked: false));
 
     // Limpa os campos de texto
     _taskNameController.clear();
@@ -172,6 +171,8 @@ class _ListAddPageState extends State<ListAddPage> {
                                   ),
                                 ),
                                 keyboardType: TextInputType.text,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     return 'Este campo é obrigatório';
@@ -227,7 +228,7 @@ class _ListAddPageState extends State<ListAddPage> {
                                 keyboardType: TextInputType.datetime,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Este campo é obrigatório';
+                                    return null;
                                   }
                                   try {
                                     _dateFormat.parseStrict(value);
@@ -265,10 +266,17 @@ class _ListAddPageState extends State<ListAddPage> {
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
                               _addTask();
-
-                              print('salvo no repo');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Lista salva'),
+                                  duration: Duration(milliseconds: 1000),
+                                ),
+                              );
                             }
-                            Navigator.pop(context);
+                            Future.delayed(const Duration(milliseconds: 1500),
+                                () {
+                              Navigator.pop(context);
+                            });
                           },
                           child: const Text(
                             'Salvar',

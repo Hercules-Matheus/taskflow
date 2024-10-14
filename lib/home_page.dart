@@ -19,9 +19,23 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
+  late List<Lists> tasks;
+
+  @override
+  void initState() {
+    super.initState();
+    tasks = ListRepository.getTasks();
+  }
+
+  void _toggleCheckbox(int index) {
+    setState(() {
+      tasks[index].isChecked = !tasks[index].isChecked;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<Lists> taskName = ListRepository.getTasks();
+    List<Lists> taskName = tasks;
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -63,15 +77,58 @@ class HomePageState extends State<HomePage> {
             ],
           ),
           SizedBox(
-            height: 300,
+            height: 320,
             child: Row(
               children: <Widget>[
                 Expanded(
                   child: ListView.builder(
                     itemCount: taskName.length,
                     itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(taskName[index].name),
+                      return GestureDetector(
+                        onTap: () {
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const TaskAddPage(),
+                          //   ),
+                          // );
+                        },
+                        child: Card(
+                          color: AppColors.secondaryWhiteColor,
+                          child: SizedBox(
+                            height: 72,
+                            child: ListTile(
+                              title: Text(taskName[index].name),
+                              subtitle: Text(taskName[index].date),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  IconButton(
+                                    onPressed: () {
+                                      _toggleCheckbox(index);
+                                    },
+                                    icon: Icon(
+                                      taskName[index].isChecked
+                                          ? Icons.check_box
+                                          : Icons.check_box_outline_blank,
+                                      color: AppColors.primaryGreenColor,
+                                      size: 30.0,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Deletar',
+                                    onPressed: () {},
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: AppColors.primaryGreenColor,
+                                      size: 30.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -96,7 +153,7 @@ class HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(
-            height: 300,
+            height: 200,
             child: Row(),
           ),
           const Spacer(),
