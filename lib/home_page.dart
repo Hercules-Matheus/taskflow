@@ -33,6 +33,53 @@ class HomePageState extends State<HomePage> {
     });
   }
 
+  void _showDeleteConfirmationDialog(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmação de Exclusão'),
+          content: Text(
+            'Você tem certeza que deseja excluir "${tasks[index].name}"?',
+            style: TextStyle(
+              fontFamily: AppFonts.poppins,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: AppColors.primaryGreenColor,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  print('Removendo ${tasks[index]}');
+                  ListRepository.removeTask(tasks[index]);
+                  tasks[index].removeAt(index);
+                  print('Lista atualizada: $tasks');
+                });
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+              child: Text(
+                'Excluir',
+                style: TextStyle(
+                  color: AppColors.primaryGreenColor,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Lists> taskName = tasks;
@@ -117,7 +164,10 @@ class HomePageState extends State<HomePage> {
                                   ),
                                   IconButton(
                                     tooltip: 'Deletar',
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      _showDeleteConfirmationDialog(
+                                          context, index);
+                                    },
                                     icon: const Icon(
                                       Icons.delete_outline,
                                       color: AppColors.primaryGreenColor,
@@ -141,7 +191,7 @@ class HomePageState extends State<HomePage> {
             children: <Widget>[
               Expanded(
                 child: Text(
-                  'Grupos',
+                  'Tarefas de hoje',
                   textDirection: TextDirection.ltr,
                   style: TextStyle(
                       color: AppColors.primaryBlackColor,

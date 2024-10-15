@@ -10,4 +10,8 @@ class ListRepository {
   static List<Lists> getTasks() {
     return table;
   }
+
+  static void removeTask(Lists task) {
+    table.remove(task);
+  }
 }

@@ -8,4 +8,6 @@ class Lists {
     required this.date,
     required this.isChecked,
   });
+
+  void removeAt(int index) {}
 }

@@ -272,11 +272,11 @@ class ListAddPageState extends State<ListAddPage> {
                                   duration: Duration(milliseconds: 1000),
                                 ),
                               );
+                              Future.delayed(const Duration(milliseconds: 1500),
+                                  () {
+                                Navigator.pop(context);
+                              });
                             }
-                            Future.delayed(const Duration(milliseconds: 1500),
-                                () {
-                              Navigator.pop(context);
-                            });
                           },
                           child: const Text(
                             'Salvar',
