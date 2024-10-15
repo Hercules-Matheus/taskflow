@@ -228,7 +228,7 @@ class ListAddPageState extends State<ListAddPage> {
                                 keyboardType: TextInputType.datetime,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return null;
+                                    return 'Campo obrigatório';
                                   }
                                   try {
                                     _dateFormat.parseStrict(value);
@@ -248,8 +248,23 @@ class ListAddPageState extends State<ListAddPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextButton(
+                          style: ButtonStyle(
+                            overlayColor:
+                                WidgetStateProperty.resolveWith<Color?>(
+                              (Set<WidgetState> states) {
+                                if (states.contains(WidgetState.pressed)) {
+                                  return AppColors.primaryRedColor
+                                      .withOpacity(0.2); // Cor do splash
+                                }
+                                return null; // Use o valor padrão
+                              },
+                            ),
+                          ),
                           onPressed: () {
-                            Navigator.pop(context);
+                            Future.delayed(const Duration(milliseconds: 300),
+                                () {
+                              Navigator.pop(context);
+                            });
                           },
                           child: const Text(
                             'Cancelar',
@@ -262,6 +277,18 @@ class ListAddPageState extends State<ListAddPage> {
                           ),
                         ),
                         TextButton(
+                          style: ButtonStyle(
+                            overlayColor:
+                                WidgetStateProperty.resolveWith<Color?>(
+                              (Set<WidgetState> states) {
+                                if (states.contains(WidgetState.pressed)) {
+                                  return AppColors.secondaryGreenColor
+                                      .withOpacity(0.2); // Cor do splash
+                                }
+                                return null; // Use o valor padrão
+                              },
+                            ),
+                          ),
                           onPressed: () {
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {

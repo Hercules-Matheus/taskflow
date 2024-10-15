@@ -19,17 +19,17 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  late List<Lists> tasks;
+  late List<Lists> tasklist;
 
   @override
   void initState() {
     super.initState();
-    tasks = ListRepository.getTasks();
+    tasklist = ListRepository.getTasks();
   }
 
   void _toggleCheckbox(int index) {
     setState(() {
-      tasks[index].isChecked = !tasks[index].isChecked;
+      tasklist[index].isChecked = !tasklist[index].isChecked;
     });
   }
 
@@ -38,10 +38,10 @@ class HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmação de Exclusão'),
+          title: const Text('Confirmação de Exclusão'),
           content: Text(
-            'Você tem certeza que deseja excluir "${tasks[index].name}"?',
-            style: TextStyle(
+            'Você tem certeza que deseja excluir "${tasklist[index].name}"?',
+            style: const TextStyle(
               fontFamily: AppFonts.poppins,
             ),
           ),
@@ -50,7 +50,7 @@ class HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.of(context).pop(); // Fecha o diálogo
               },
-              child: Text(
+              child: const Text(
                 'Cancelar',
                 style: TextStyle(
                   color: AppColors.primaryGreenColor,
@@ -59,15 +59,14 @@ class HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () {
-                setState(() {
-                  print('Removendo ${tasks[index]}');
-                  ListRepository.removeTask(tasks[index]);
-                  tasks[index].removeAt(index);
-                  print('Lista atualizada: $tasks');
-                });
+                // Primeira verificacao para garantir que a tarefa existe
+                if (tasklist.isNotEmpty && index < tasklist.length) {
+                  tasklist.removeAt(index);
+                  setState(() {});
+                }
                 Navigator.of(context).pop(); // Fecha o diálogo
               },
-              child: Text(
+              child: const Text(
                 'Excluir',
                 style: TextStyle(
                   color: AppColors.primaryGreenColor,
@@ -82,7 +81,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Lists> taskName = tasks;
+    List<Lists> taskListName = tasklist;
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -129,7 +128,7 @@ class HomePageState extends State<HomePage> {
               children: <Widget>[
                 Expanded(
                   child: ListView.builder(
-                    itemCount: taskName.length,
+                    itemCount: taskListName.length,
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
@@ -145,25 +144,26 @@ class HomePageState extends State<HomePage> {
                           child: SizedBox(
                             height: 72,
                             child: ListTile(
-                              title: Text(taskName[index].name),
-                              subtitle: Text(taskName[index].date),
+                              title: Text(taskListName[index].name),
+                              subtitle: Text(taskListName[index].date),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
                                   IconButton(
+                                    iconSize: 28,
                                     onPressed: () {
                                       _toggleCheckbox(index);
                                     },
                                     icon: Icon(
-                                      taskName[index].isChecked
+                                      taskListName[index].isChecked
                                           ? Icons.check_box
                                           : Icons.check_box_outline_blank,
                                       color: AppColors.primaryGreenColor,
-                                      size: 30.0,
                                     ),
                                   ),
                                   IconButton(
                                     tooltip: 'Deletar',
+                                    iconSize: 28,
                                     onPressed: () {
                                       _showDeleteConfirmationDialog(
                                           context, index);
@@ -171,7 +171,6 @@ class HomePageState extends State<HomePage> {
                                     icon: const Icon(
                                       Icons.delete_outline,
                                       color: AppColors.primaryGreenColor,
-                                      size: 30.0,
                                     ),
                                   ),
                                 ],

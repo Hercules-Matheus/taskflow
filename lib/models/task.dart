@@ -1,9 +1,9 @@
-class Lists {
+class Tasks {
   String name;
   String date;
   bool isChecked;
 
-  Lists({
+  Tasks({
     required this.name,
     required this.date,
     required this.isChecked,
