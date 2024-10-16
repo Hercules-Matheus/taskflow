@@ -5,6 +5,7 @@ import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
 import 'package:taskflow/pages/list_add/list_add_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:taskflow/pages/task_add/task_add_page.dart';
 import 'package:taskflow/repository/list_repository.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,7 +25,7 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    tasklist = ListRepository.getTasks();
+    tasklist = ListRepository.getList();
   }
 
   void _toggleCheckbox(int index) {
@@ -40,7 +41,7 @@ class HomePageState extends State<HomePage> {
         return AlertDialog(
           title: const Text('Confirmação de Exclusão'),
           content: Text(
-            'Você tem certeza que deseja excluir "${tasklist[index].name}"?',
+            'Você tem certeza que deseja excluir a lista: "${tasklist[index].name}"?',
             style: const TextStyle(
               fontFamily: AppFonts.poppins,
             ),
@@ -132,12 +133,12 @@ class HomePageState extends State<HomePage> {
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const TaskAddPage(),
-                          //   ),
-                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const TaskAddPage(),
+                            ),
+                          );
                         },
                         child: Card(
                           color: AppColors.secondaryWhiteColor,
@@ -298,7 +299,7 @@ class HomePageState extends State<HomePage> {
           width: 100,
           height: 54,
         ),
-        actions: const [
+        actions: const <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 12.0),
             child: CircleAvatar(
@@ -307,7 +308,7 @@ class HomePageState extends State<HomePage> {
                   AssetImage('lib/assets/images/generic-avatar.png'),
               backgroundColor: Colors.transparent,
             ),
-          )
+          ),
         ],
       ),
       body: body,

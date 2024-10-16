@@ -3,15 +3,15 @@ import 'package:taskflow/models/list.dart';
 class ListRepository {
   static List<Lists> tableList = [];
 
-  static void addTask(Lists tasklist) {
+  static void addList(Lists tasklist) {
     tableList.add(tasklist);
   }
 
-  static List<Lists> getTasks() {
+  static List<Lists> getList() {
     return tableList;
   }
 
-  static void removeTask(Lists tasklist) {
+  static void removeList(Lists tasklist) {
     tableList.remove(tasklist);
   }
 }

@@ -27,7 +27,7 @@ class ListAddPageState extends State<ListAddPage> {
 
   void _addTask() {
     // Adiciona a nova tarefa ao repositório
-    ListRepository.addTask(Lists(
+    ListRepository.addList(Lists(
         name: _taskNameController.text,
         date: _dateController.text,
         isChecked: false));
