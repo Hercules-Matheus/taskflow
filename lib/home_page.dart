@@ -5,7 +5,7 @@ import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
 import 'package:taskflow/pages/list_add/list_add_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:taskflow/pages/task_add/task_add_page.dart';
+import 'package:taskflow/pages/task/task_page.dart';
 import 'package:taskflow/repository/list_repository.dart';
 
 class HomePage extends StatefulWidget {
@@ -125,65 +125,62 @@ class HomePageState extends State<HomePage> {
           ),
           SizedBox(
             height: 320,
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: taskListName.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const TaskAddPage(),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          color: AppColors.secondaryWhiteColor,
-                          child: SizedBox(
-                            height: 72,
-                            child: ListTile(
-                              title: Text(taskListName[index].name),
-                              subtitle: Text(taskListName[index].date),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  IconButton(
-                                    iconSize: 28,
-                                    onPressed: () {
-                                      _toggleCheckbox(index);
-                                    },
-                                    icon: Icon(
-                                      taskListName[index].isChecked
-                                          ? Icons.check_box
-                                          : Icons.check_box_outline_blank,
-                                      color: AppColors.primaryGreenColor,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    tooltip: 'Deletar',
-                                    iconSize: 28,
-                                    onPressed: () {
-                                      _showDeleteConfirmationDialog(
-                                          context, index);
-                                    },
-                                    icon: const Icon(
-                                      Icons.delete_outline,
-                                      color: AppColors.primaryGreenColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+            child: Expanded(
+              child: ListView.builder(
+                itemCount: taskListName.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TaskPage(
+                            taskListName: taskListName[index].name,
                           ),
                         ),
                       );
                     },
-                  ),
-                ),
-              ],
+                    child: Card(
+                      color: AppColors.secondaryWhiteColor,
+                      child: SizedBox(
+                        height: 72,
+                        child: ListTile(
+                          title: Text(taskListName[index].name),
+                          subtitle: Text(taskListName[index].date),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              IconButton(
+                                iconSize: 28,
+                                onPressed: () {
+                                  _toggleCheckbox(index);
+                                },
+                                icon: Icon(
+                                  taskListName[index].isChecked
+                                      ? Icons.check_box
+                                      : Icons.check_box_outline_blank,
+                                  color: AppColors.primaryGreenColor,
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: 'Deletar',
+                                iconSize: 28,
+                                onPressed: () {
+                                  _showDeleteConfirmationDialog(context, index);
+                                },
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: AppColors.primaryGreenColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
           const Row(

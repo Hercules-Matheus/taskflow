@@ -2,32 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
-import 'package:taskflow/models/list.dart';
 import 'package:taskflow/models/task.dart';
-import 'package:taskflow/repository/list_repository.dart';
+import 'package:taskflow/pages/task/task_add_page.dart';
 import 'package:taskflow/repository/tasks_repository.dart';
 
-class TaskAddPage extends StatefulWidget {
-  static String tag = 'task_add_page';
+class TaskPage extends StatefulWidget {
+  static String tag = 'task_page';
+  final String taskListName;
 
-  const TaskAddPage({super.key});
+  const TaskPage({super.key, required this.taskListName});
 
   @override
   State<StatefulWidget> createState() {
-    return TaskAddPageState();
+    return TaskPageState();
   }
 }
 
-class TaskAddPageState extends State<TaskAddPage> {
+class TaskPageState extends State<TaskPage> {
   late List<Tasks> tasks;
-  late List<Lists> tasklist;
+  late String listName;
 
   @override
   void initState() {
     super.initState();
     tasks = TasksRepository.getTasks();
-    tasklist = ListRepository.getList();
   }
+
+  void _listName() {}
 
   void _toggleCheckbox(int index) {
     setState(() {
@@ -84,7 +85,6 @@ class TaskAddPageState extends State<TaskAddPage> {
   @override
   Widget build(BuildContext context) {
     List<Tasks> taskName = tasks;
-    List<Lists> listName = tasklist;
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -106,73 +106,79 @@ class TaskAddPageState extends State<TaskAddPage> {
             children: <Widget>[
               Expanded(
                 child: Text(
-                  'Listas',
+                  'Tarefas',
                   textDirection: TextDirection.ltr,
                   style: TextStyle(
                     color: AppColors.primaryBlackColor,
                     fontFamily: AppFonts.montserrat,
                     fontWeight: FontWeight.w500,
-                    fontSize: 24.0,
+                    fontSize: 20.0,
                   ),
                 ),
               ),
             ],
           ),
           SizedBox(
-            height: 320,
+            height: 560,
             child: Row(
               children: <Widget>[
                 Expanded(
                   child: ListView.builder(
                     itemCount: taskName.length,
                     itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const TaskAddPage(),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          color: AppColors.secondaryWhiteColor,
-                          child: SizedBox(
-                            height: 72,
-                            child: ListTile(
-                              title: Text(taskName[index].name),
-                              subtitle: Text(taskName[index].date),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  IconButton(
-                                    iconSize: 28,
-                                    onPressed: () {
-                                      _toggleCheckbox(index);
-                                    },
-                                    icon: Icon(
-                                      taskName[index].isChecked
-                                          ? Icons.check_box
-                                          : Icons.check_box_outline_blank,
-                                      color: AppColors.primaryGreenColor,
+                      return Card(
+                        color: AppColors.secondaryWhiteColor,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            SizedBox(
+                              height: 72,
+                              child: Center(
+                                child: ListTile(
+                                  title: Padding(
+                                    padding: EdgeInsets.only(bottom: 10.0),
+                                    child: Container(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(taskName[index].name),
                                     ),
                                   ),
-                                  IconButton(
-                                    tooltip: 'Deletar',
-                                    iconSize: 28,
-                                    onPressed: () {
-                                      _showDeleteConfirmationDialog(
-                                          context, index);
-                                    },
-                                    icon: const Icon(
-                                      Icons.delete_outline,
-                                      color: AppColors.primaryGreenColor,
+                                  trailing: Padding(
+                                    padding: EdgeInsets.only(bottom: 10.0),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        IconButton(
+                                          alignment: Alignment.center,
+                                          iconSize: 28,
+                                          onPressed: () {
+                                            _toggleCheckbox(index);
+                                          },
+                                          icon: Icon(
+                                            taskName[index].isChecked
+                                                ? Icons.check_box
+                                                : Icons.check_box_outline_blank,
+                                            color: AppColors.primaryGreenColor,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          tooltip: 'Deletar',
+                                          iconSize: 28,
+                                          onPressed: () {
+                                            _showDeleteConfirmationDialog(
+                                                context, index);
+                                          },
+                                          icon: const Icon(
+                                            Icons.delete_outline,
+                                            color: AppColors.primaryGreenColor,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       );
                     },
@@ -180,26 +186,6 @@ class TaskAddPageState extends State<TaskAddPage> {
                 ),
               ],
             ),
-          ),
-          const Row(
-            textDirection: TextDirection.ltr,
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  'Tarefas de hoje',
-                  textDirection: TextDirection.ltr,
-                  style: TextStyle(
-                      color: AppColors.primaryBlackColor,
-                      fontFamily: AppFonts.montserrat,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 24.0),
-                ),
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 200,
-            child: Row(),
           ),
           const Spacer(),
           Row(
@@ -210,16 +196,16 @@ class TaskAddPageState extends State<TaskAddPage> {
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // debugPrint('clicado');
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => const ListAddPage(),
-                    //   ),
-                    // );
+                    debugPrint('clicado');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TaskAddPage(),
+                      ),
+                    );
                   },
                   label: const Text(
-                    'Nova Lista',
+                    'Nova Tarefa',
                     style: TextStyle(
                       color: AppColors.primaryWhiteColor,
                     ),
@@ -285,9 +271,9 @@ class TaskAddPageState extends State<TaskAddPage> {
           ),
         ),
         centerTitle: false,
-        title: const Text(
-          'Title',
-          style: TextStyle(
+        title: Text(
+          widget.taskListName,
+          style: const TextStyle(
             fontFamily: AppFonts.montserrat,
             fontSize: 24.0,
             fontWeight: FontWeight.w500,

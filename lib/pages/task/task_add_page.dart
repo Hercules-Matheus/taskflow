@@ -6,34 +6,34 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
-import 'package:taskflow/models/list.dart';
-import 'package:taskflow/repository/list_repository.dart';
+import 'package:taskflow/models/task.dart';
+import 'package:taskflow/repository/tasks_repository.dart';
 
-class ListAddPage extends StatefulWidget {
-  static String tag = 'list_add_page';
+class TaskAddPage extends StatefulWidget {
+  static String tag = 'task_add_page';
 
-  const ListAddPage({super.key});
+  const TaskAddPage({super.key});
 
   @override
-  ListAddPageState createState() => ListAddPageState();
+  TaskAddPageState createState() => TaskAddPageState();
 }
 
-class ListAddPageState extends State<ListAddPage> {
+class TaskAddPageState extends State<TaskAddPage> {
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy', 'pt_BR');
   final _dateController = MaskedTextController(mask: '00/00/0000');
-  final TextEditingController _listNameController = TextEditingController();
+  final TextEditingController _taskNameController = TextEditingController();
   final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
 
   void _addTask() {
-    // Adiciona a nova lista ao repositório
-    ListRepository.addList(Lists(
-        name: _listNameController.text,
+    // Adiciona a nova tarefa ao repositório
+    TasksRepository.addTask(Tasks(
+        name: _taskNameController.text,
         date: _dateController.text,
         isChecked: false));
 
     // Limpa os campos de texto
-    _listNameController.clear();
+    _taskNameController.clear();
     _dateController.clear();
   }
 
@@ -128,7 +128,7 @@ class ListAddPageState extends State<ListAddPage> {
                     const Row(
                       children: <Widget>[
                         Text(
-                          'Nova lista',
+                          'Nova tarefa',
                           style: TextStyle(
                             color: AppColors.primaryGreenColor,
                             fontFamily: AppFonts.montserrat,
@@ -148,7 +148,7 @@ class ListAddPageState extends State<ListAddPage> {
                             child: Form(
                               key: _formNameKey,
                               child: TextFormField(
-                                controller: _listNameController,
+                                controller: _taskNameController,
                                 cursorColor: AppColors.secondaryGreenColor,
                                 style: const TextStyle(
                                   color: AppColors.primaryBlackColor,
@@ -162,7 +162,7 @@ class ListAddPageState extends State<ListAddPage> {
                                       color: AppColors.secondaryGreenColor,
                                     ),
                                   ),
-                                  labelText: 'Nome da lista',
+                                  labelText: 'Nome da tarefa',
                                   labelStyle: TextStyle(
                                     color: AppColors.primaryBlackColor,
                                     fontFamily: AppFonts.montserrat,
@@ -243,6 +243,9 @@ class ListAddPageState extends State<ListAddPage> {
                         ],
                       ),
                     ),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 15.0),
+                    ),
                     const SizedBox(height: 40),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -295,7 +298,7 @@ class ListAddPageState extends State<ListAddPage> {
                               _addTask();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Lista salva'),
+                                  content: Text('Tarefa salva'),
                                   duration: Duration(milliseconds: 1000),
                                 ),
                               );
