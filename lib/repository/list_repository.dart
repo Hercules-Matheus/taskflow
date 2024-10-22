@@ -14,4 +14,17 @@ class ListRepository {
   static void removeList(Lists tasklist) {
     tableList.remove(tasklist);
   }
+
+  static void updateList(Lists tasklist) {
+    int index = tableList.indexWhere((t) => t.id == tasklist.id);
+    if (index != -1) {
+      tableList[index] = tasklist;
+    }
+  }
+
+  static Lists findListById(int id) {
+    return tableList.firstWhere((tasklist) => tasklist.id == id, orElse: () {
+      throw Exception("A lista '$id' não foi encontrada.");
+    });
+  }
 }

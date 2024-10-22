@@ -4,44 +4,36 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:provider/provider.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
-import 'package:taskflow/models/task.dart';
-import 'package:taskflow/repository/tasks_repository.dart';
+import 'package:taskflow/models/list.dart';
+import 'package:taskflow/repository/list_repository.dart';
 
-class TaskAddPage extends StatefulWidget {
-  static String tag = 'task_add_page';
+class ListAddPage extends StatefulWidget {
+  static String tag = 'list_add_page';
 
-  const TaskAddPage({super.key});
+  const ListAddPage({super.key});
 
   @override
-  TaskAddPageState createState() => TaskAddPageState();
+  ListAddPageState createState() => ListAddPageState();
 }
 
-class TaskAddPageState extends State<TaskAddPage> {
+class ListAddPageState extends State<ListAddPage> {
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy', 'pt_BR');
   final _dateController = MaskedTextController(mask: '00/00/0000');
-  final TextEditingController _taskNameController = TextEditingController();
+  final TextEditingController _listNameController = TextEditingController();
   final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
-  late TasksRepository tasksRepository;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    tasksRepository = Provider.of<TasksRepository>(context);
-  }
 
   void _addTask() {
-    // Adiciona a nova tarefa ao repositório
-    tasksRepository.addTask(Tasks(
-        name: _taskNameController.text,
+    // Adiciona a nova lista ao repositório
+    ListRepository.addList(Lists(
+        name: _listNameController.text,
         date: _dateController.text,
         isChecked: false));
 
     // Limpa os campos de texto
-    _taskNameController.clear();
+    _listNameController.clear();
     _dateController.clear();
   }
 
@@ -136,7 +128,7 @@ class TaskAddPageState extends State<TaskAddPage> {
                     const Row(
                       children: <Widget>[
                         Text(
-                          'Nova tarefa',
+                          'Nova lista',
                           style: TextStyle(
                             color: AppColors.primaryGreenColor,
                             fontFamily: AppFonts.montserrat,
@@ -156,7 +148,7 @@ class TaskAddPageState extends State<TaskAddPage> {
                             child: Form(
                               key: _formNameKey,
                               child: TextFormField(
-                                controller: _taskNameController,
+                                controller: _listNameController,
                                 cursorColor: AppColors.secondaryGreenColor,
                                 style: const TextStyle(
                                   color: AppColors.primaryBlackColor,
@@ -170,7 +162,7 @@ class TaskAddPageState extends State<TaskAddPage> {
                                       color: AppColors.secondaryGreenColor,
                                     ),
                                   ),
-                                  labelText: 'Nome da tarefa',
+                                  labelText: 'Nome da lista',
                                   labelStyle: TextStyle(
                                     color: AppColors.primaryBlackColor,
                                     fontFamily: AppFonts.montserrat,
@@ -254,9 +246,6 @@ class TaskAddPageState extends State<TaskAddPage> {
                         ],
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 15.0),
-                    ),
                     const SizedBox(height: 40),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -309,7 +298,7 @@ class TaskAddPageState extends State<TaskAddPage> {
                               _addTask();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Tarefa salva'),
+                                  content: Text('Lista salva'),
                                   duration: Duration(milliseconds: 1000),
                                 ),
                               );

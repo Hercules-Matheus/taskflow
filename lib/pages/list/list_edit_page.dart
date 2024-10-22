@@ -7,30 +7,34 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
+import 'package:taskflow/pages/list/list_page.dart';
 import 'package:taskflow/repository/list_repository.dart';
 
-class ListAddPage extends StatefulWidget {
-  static String tag = 'list_add_page';
+class ListEditPage extends StatefulWidget {
+  static String tag = 'list_edit_page';
+  final int listId;
 
-  const ListAddPage({super.key});
+  const ListEditPage({super.key, required this.listId});
 
   @override
-  ListAddPageState createState() => ListAddPageState();
+  ListEditPageState createState() => ListEditPageState();
 }
 
-class ListAddPageState extends State<ListAddPage> {
+class ListEditPageState extends State<ListEditPage> {
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy', 'pt_BR');
   final _dateController = MaskedTextController(mask: '00/00/0000');
   final TextEditingController _listNameController = TextEditingController();
   final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
 
-  void _addTask() {
-    // Adiciona a nova lista ao repositório
-    ListRepository.addList(Lists(
-        name: _listNameController.text,
-        date: _dateController.text,
-        isChecked: false));
+  void _editList(int id) {
+    Lists updatedList = ListRepository.findListById(id);
+    setState(() {
+      updatedList.name = _listNameController.text;
+      updatedList.date = _dateController.text;
+      updatedList.isChecked = false;
+    });
+    ListRepository.updateList(updatedList);
 
     // Limpa os campos de texto
     _listNameController.clear();
@@ -82,6 +86,7 @@ class ListAddPageState extends State<ListAddPage> {
       ),
     );
     return Scaffold(
+      backgroundColor: AppColors.primaryWhiteColor,
       appBar: AppBar(
         backgroundColor: AppColors.primaryGreenColor,
       ),
@@ -128,7 +133,7 @@ class ListAddPageState extends State<ListAddPage> {
                     const Row(
                       children: <Widget>[
                         Text(
-                          'Nova lista',
+                          'Edite a tarefa',
                           style: TextStyle(
                             color: AppColors.primaryGreenColor,
                             fontFamily: AppFonts.montserrat,
@@ -162,7 +167,7 @@ class ListAddPageState extends State<ListAddPage> {
                                       color: AppColors.secondaryGreenColor,
                                     ),
                                   ),
-                                  labelText: 'Nome da lista',
+                                  labelText: 'Novo nome da lista',
                                   labelStyle: TextStyle(
                                     color: AppColors.primaryBlackColor,
                                     fontFamily: AppFonts.montserrat,
@@ -175,7 +180,12 @@ class ListAddPageState extends State<ListAddPage> {
                                     TextCapitalization.sentences,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Este campo é obrigatório';
+                                    int id = widget.listId;
+                                    setState(() {
+                                      _listNameController.text =
+                                          ListRepository.findListById(id).name;
+                                    });
+                                    return null;
                                   }
                                   return null;
                                 },
@@ -204,7 +214,7 @@ class ListAddPageState extends State<ListAddPage> {
                                 controller: _dateController,
                                 cursorColor: AppColors.secondaryGreenColor,
                                 decoration: InputDecoration(
-                                  labelText: 'Data de conclusão',
+                                  labelText: 'Nova data de conclusão',
                                   labelStyle: const TextStyle(
                                     color: AppColors.primaryBlackColor,
                                     fontFamily: AppFonts.montserrat,
@@ -228,9 +238,17 @@ class ListAddPageState extends State<ListAddPage> {
                                 keyboardType: TextInputType.datetime,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Campo obrigatório';
+                                    int id = widget.listId;
+                                    setState(() {
+                                      _dateController.text =
+                                          ListRepository.findListById(id).date;
+                                    });
+                                    return null;
                                   }
                                   try {
+                                    // if (value == '00/00/0000') {
+                                    //   return null;
+                                    // }
                                     _dateFormat.parseStrict(value);
                                     return null;
                                   } catch (e) {
@@ -242,6 +260,9 @@ class ListAddPageState extends State<ListAddPage> {
                           ),
                         ],
                       ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 15.0),
                     ),
                     const SizedBox(height: 40),
                     Row(
@@ -292,16 +313,21 @@ class ListAddPageState extends State<ListAddPage> {
                           onPressed: () {
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
-                              _addTask();
+                              int id = widget.listId;
+                              _editList(id);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Lista salva'),
+                                  content: Text('Lista alterada'),
                                   duration: Duration(milliseconds: 1000),
                                 ),
                               );
                               Future.delayed(const Duration(milliseconds: 1500),
                                   () {
-                                Navigator.pop(context);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const ListPage(),
+                                    ));
                               });
                             }
                           },

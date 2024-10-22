@@ -4,41 +4,37 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:provider/provider.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/task.dart';
 import 'package:taskflow/repository/tasks_repository.dart';
 
-class TaskAddPage extends StatefulWidget {
-  static String tag = 'task_add_page';
+class TaskEditPage extends StatefulWidget {
+  static String tag = 'task_edit_page';
+  final int taskId;
 
-  const TaskAddPage({super.key});
+  const TaskEditPage({super.key, required this.taskId});
 
   @override
-  TaskAddPageState createState() => TaskAddPageState();
+  TaskEditPageState createState() => TaskEditPageState();
 }
 
-class TaskAddPageState extends State<TaskAddPage> {
+class TaskEditPageState extends State<TaskEditPage> {
   final DateFormat _dateFormat = DateFormat('dd/MM/yyyy', 'pt_BR');
   final _dateController = MaskedTextController(mask: '00/00/0000');
   final TextEditingController _taskNameController = TextEditingController();
   final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
-  late TasksRepository tasksRepository;
+  final TasksRepository tasksRepository = TasksRepository();
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    tasksRepository = Provider.of<TasksRepository>(context);
-  }
-
-  void _addTask() {
-    // Adiciona a nova tarefa ao repositório
-    tasksRepository.addTask(Tasks(
-        name: _taskNameController.text,
-        date: _dateController.text,
-        isChecked: false));
+  void _editTask(int id) {
+    Tasks updatedTask = tasksRepository.findTaskById(id);
+    setState(() {
+      updatedTask.name = _taskNameController.text;
+      updatedTask.date = _dateController.text;
+      updatedTask.isChecked = false;
+    });
+    tasksRepository.updateTask(updatedTask);
 
     // Limpa os campos de texto
     _taskNameController.clear();
@@ -90,6 +86,7 @@ class TaskAddPageState extends State<TaskAddPage> {
       ),
     );
     return Scaffold(
+      backgroundColor: AppColors.primaryWhiteColor,
       appBar: AppBar(
         backgroundColor: AppColors.primaryGreenColor,
       ),
@@ -136,7 +133,7 @@ class TaskAddPageState extends State<TaskAddPage> {
                     const Row(
                       children: <Widget>[
                         Text(
-                          'Nova tarefa',
+                          'Edite a tarefa',
                           style: TextStyle(
                             color: AppColors.primaryGreenColor,
                             fontFamily: AppFonts.montserrat,
@@ -170,7 +167,7 @@ class TaskAddPageState extends State<TaskAddPage> {
                                       color: AppColors.secondaryGreenColor,
                                     ),
                                   ),
-                                  labelText: 'Nome da tarefa',
+                                  labelText: 'Novo nome da tarefa',
                                   labelStyle: TextStyle(
                                     color: AppColors.primaryBlackColor,
                                     fontFamily: AppFonts.montserrat,
@@ -183,7 +180,12 @@ class TaskAddPageState extends State<TaskAddPage> {
                                     TextCapitalization.sentences,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Este campo é obrigatório';
+                                    int id = widget.taskId;
+                                    setState(() {
+                                      _taskNameController.text =
+                                          tasksRepository.findTaskById(id).name;
+                                    });
+                                    return null;
                                   }
                                   return null;
                                 },
@@ -212,7 +214,7 @@ class TaskAddPageState extends State<TaskAddPage> {
                                 controller: _dateController,
                                 cursorColor: AppColors.secondaryGreenColor,
                                 decoration: InputDecoration(
-                                  labelText: 'Data de conclusão',
+                                  labelText: 'Nova data de conclusão',
                                   labelStyle: const TextStyle(
                                     color: AppColors.primaryBlackColor,
                                     fontFamily: AppFonts.montserrat,
@@ -236,12 +238,17 @@ class TaskAddPageState extends State<TaskAddPage> {
                                 keyboardType: TextInputType.datetime,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
+                                    int id = widget.taskId;
+                                    setState(() {
+                                      _dateController.text =
+                                          tasksRepository.findTaskById(id).date;
+                                    });
                                     return null;
                                   }
                                   try {
-                                    if (value == '00/00/0000') {
-                                      return null;
-                                    }
+                                    // if (value == '00/00/0000') {
+                                    //   return null;
+                                    // }
                                     _dateFormat.parseStrict(value);
                                     return null;
                                   } catch (e) {
@@ -306,10 +313,11 @@ class TaskAddPageState extends State<TaskAddPage> {
                           onPressed: () {
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
-                              _addTask();
+                              int id = widget.taskId;
+                              _editTask(id);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Tarefa salva'),
+                                  content: Text('Tarefa alterada'),
                                   duration: Duration(milliseconds: 1000),
                                 ),
                               );

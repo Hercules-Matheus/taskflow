@@ -3,23 +3,23 @@ import 'package:flutter/services.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
-import 'package:taskflow/pages/list_add/list_add_page.dart';
+import 'package:taskflow/pages/list/list_add_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskflow/pages/task/task_page.dart';
 import 'package:taskflow/repository/list_repository.dart';
 
-class HomePage extends StatefulWidget {
-  static String tag = 'home_page';
+class ListPage extends StatefulWidget {
+  static String tag = 'list_page';
 
-  const HomePage({super.key});
+  const ListPage({super.key});
 
   @override
   State<StatefulWidget> createState() {
-    return HomePageState();
+    return ListPageState();
   }
 }
 
-class HomePageState extends State<HomePage> {
+class ListPageState extends State<ListPage> {
   late List<Lists> tasklist;
 
   @override
@@ -82,7 +82,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Lists> taskListName = tasklist;
+    List<Lists> taskList = tasklist;
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -127,7 +127,7 @@ class HomePageState extends State<HomePage> {
             height: 320,
             child: Expanded(
               child: ListView.builder(
-                itemCount: taskListName.length,
+                itemCount: taskList.length,
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
@@ -135,7 +135,8 @@ class HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => TaskPage(
-                            taskListName: taskListName[index].name,
+                            taskListName: taskList[index].name,
+                            taskListId: taskList[index].id,
                           ),
                         ),
                       );
@@ -144,36 +145,50 @@ class HomePageState extends State<HomePage> {
                       color: AppColors.secondaryWhiteColor,
                       child: SizedBox(
                         height: 72,
-                        child: ListTile(
-                          title: Text(taskListName[index].name),
-                          subtitle: Text(taskListName[index].date),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              IconButton(
-                                iconSize: 28,
-                                onPressed: () {
-                                  _toggleCheckbox(index);
-                                },
-                                icon: Icon(
-                                  taskListName[index].isChecked
-                                      ? Icons.check_box
-                                      : Icons.check_box_outline_blank,
-                                  color: AppColors.primaryGreenColor,
+                        child: Container(
+                          alignment: Alignment.bottomLeft,
+                          child: ListTile(
+                            textColor: AppColors.primaryBlackColor,
+                            title: Text(taskList[index].name),
+                            titleTextStyle: TextStyle(
+                              fontFamily: AppFonts.poppins,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            subtitle: Text(taskList[index].date),
+                            subtitleTextStyle: TextStyle(
+                                fontFamily: AppFonts.poppins,
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.w100),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  iconSize: 28,
+                                  onPressed: () {
+                                    _toggleCheckbox(index);
+                                  },
+                                  icon: Icon(
+                                    taskList[index].isChecked
+                                        ? Icons.check_box
+                                        : Icons.check_box_outline_blank,
+                                    color: AppColors.primaryGreenColor,
+                                  ),
                                 ),
-                              ),
-                              IconButton(
-                                tooltip: 'Deletar',
-                                iconSize: 28,
-                                onPressed: () {
-                                  _showDeleteConfirmationDialog(context, index);
-                                },
-                                icon: const Icon(
-                                  Icons.delete_outline,
-                                  color: AppColors.primaryGreenColor,
+                                IconButton(
+                                  tooltip: 'Deletar',
+                                  iconSize: 28,
+                                  onPressed: () {
+                                    _showDeleteConfirmationDialog(
+                                        context, index);
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    color: AppColors.primaryGreenColor,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

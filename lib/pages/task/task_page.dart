@@ -1,38 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
+import 'package:taskflow/fab_button/fab_menu_button.dart';
 import 'package:taskflow/models/task.dart';
+import 'package:taskflow/pages/list/list_edit_page.dart';
 import 'package:taskflow/pages/task/task_add_page.dart';
+import 'package:taskflow/pages/task/task_edit_page.dart';
 import 'package:taskflow/repository/tasks_repository.dart';
 
 class TaskPage extends StatefulWidget {
   static String tag = 'task_page';
   final String taskListName;
+  final int taskListId;
 
-  const TaskPage({super.key, required this.taskListName});
+  const TaskPage(
+      {super.key, required this.taskListName, required this.taskListId});
 
   @override
-  State<StatefulWidget> createState() {
-    return TaskPageState();
-  }
+  TaskPageState createState() => TaskPageState();
 }
 
 class TaskPageState extends State<TaskPage> {
   late List<Tasks> tasks;
   late String listName;
+  final TextEditingController _searchController = TextEditingController();
+  late TasksRepository tasksRepository;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    tasksRepository = Provider.of<TasksRepository>(context);
+    tasks = tasksRepository.getTasks();
+  }
 
   @override
   void initState() {
     super.initState();
-    tasks = TasksRepository.getTasks();
   }
 
-  void _listName() {}
-
   void _toggleCheckbox(int index) {
+    setState(
+      () {
+        tasks[index].isChecked = !tasks[index].isChecked;
+      },
+    );
+  }
+
+  void _showSearchDialog() {
+    const Spacer();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          actions: <Widget>[
+            TextField(
+              controller: _searchController,
+              cursorColor: AppColors.secondaryGreenColor,
+              decoration: InputDecoration(
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: AppColors.secondaryGreenColor,
+                  ),
+                ),
+                hintText: 'Buscar tarefas',
+                hintStyle: const TextStyle(
+                  fontFamily: AppFonts.montserrat,
+                  fontSize: 14.0,
+                ),
+                suffixIcon: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.search),
+                  color: AppColors.secondaryGreenColor,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void sortByAlpha() {
+    tasksRepository.sortByName();
     setState(() {
-      tasks[index].isChecked = !tasks[index].isChecked;
+      tasks = tasksRepository.getTasks();
     });
   }
 
@@ -64,8 +117,10 @@ class TaskPageState extends State<TaskPage> {
               onPressed: () {
                 // Primeira verificacao para garantir que a tarefa existe
                 if (tasks.isNotEmpty && index < tasks.length) {
-                  tasks.removeAt(index);
-                  setState(() {});
+                  tasksRepository.removeTask(tasks[index]);
+                  setState(() {
+                    tasks.removeAt(index);
+                  });
                 }
                 Navigator.of(context).pop(); // Fecha o diálogo
               },
@@ -84,8 +139,6 @@ class TaskPageState extends State<TaskPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Tasks> taskName = tasks;
-
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         systemNavigationBarColor: AppColors.primaryGreenColor,
@@ -124,7 +177,7 @@ class TaskPageState extends State<TaskPage> {
               children: <Widget>[
                 Expanded(
                   child: ListView.builder(
-                    itemCount: taskName.length,
+                    itemCount: tasks.length,
                     itemBuilder: (context, index) {
                       return Card(
                         color: AppColors.secondaryWhiteColor,
@@ -135,45 +188,56 @@ class TaskPageState extends State<TaskPage> {
                               height: 72,
                               child: Center(
                                 child: ListTile(
-                                  title: Padding(
-                                    padding: EdgeInsets.only(bottom: 10.0),
-                                    child: Container(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(taskName[index].name),
+                                  leading: IconButton(
+                                    alignment: Alignment.center,
+                                    iconSize: 28,
+                                    onPressed: () {
+                                      _toggleCheckbox(index);
+                                    },
+                                    icon: Icon(
+                                      tasks[index].isChecked
+                                          ? Icons.radio_button_checked
+                                          : Icons.radio_button_unchecked,
+                                      color: AppColors.primaryGreenColor,
                                     ),
                                   ),
-                                  trailing: Padding(
-                                    padding: EdgeInsets.only(bottom: 10.0),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        IconButton(
-                                          alignment: Alignment.center,
-                                          iconSize: 28,
-                                          onPressed: () {
-                                            _toggleCheckbox(index);
-                                          },
-                                          icon: Icon(
-                                            taskName[index].isChecked
-                                                ? Icons.check_box
-                                                : Icons.check_box_outline_blank,
-                                            color: AppColors.primaryGreenColor,
-                                          ),
+                                  title: Text(tasks[index].name),
+                                  subtitle: Text(tasks[index].date),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      IconButton(
+                                        alignment: Alignment.center,
+                                        iconSize: 28,
+                                        onPressed: () {
+                                          _showDeleteConfirmationDialog(
+                                              context, index);
+                                        },
+                                        icon: const Icon(
+                                          Icons.delete_outline,
+                                          color: AppColors.primaryGreenColor,
                                         ),
-                                        IconButton(
-                                          tooltip: 'Deletar',
-                                          iconSize: 28,
-                                          onPressed: () {
-                                            _showDeleteConfirmationDialog(
-                                                context, index);
-                                          },
-                                          icon: const Icon(
-                                            Icons.delete_outline,
-                                            color: AppColors.primaryGreenColor,
-                                          ),
+                                      ),
+                                      IconButton(
+                                        tooltip: 'Deletar',
+                                        iconSize: 28,
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  TaskEditPage(
+                                                taskId: tasks[index].id,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.edit_outlined,
+                                          color: AppColors.primaryGreenColor,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -228,28 +292,29 @@ class TaskPageState extends State<TaskPage> {
                   ),
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  debugPrint('Cliquei');
-                },
-                style: const ButtonStyle(
-                  elevation: WidgetStatePropertyAll(5.0),
-                  backgroundColor:
-                      WidgetStatePropertyAll(AppColors.primaryGreenColor),
-                  padding: WidgetStatePropertyAll(EdgeInsets.all(16.0)),
-                  shape: WidgetStatePropertyAll(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(16.0),
-                      ),
-                    ),
-                  ),
-                ),
-                child: const Icon(
-                  Icons.search,
-                  color: AppColors.primaryWhiteColor,
-                ),
-              ),
+
+              // ElevatedButton(
+              //   onPressed: () {
+              //     _showSearchDialog();
+              //   },
+              //   style: const ButtonStyle(
+              //     elevation: WidgetStatePropertyAll(5.0),
+              //     backgroundColor:
+              //         WidgetStatePropertyAll(AppColors.primaryGreenColor),
+              //     padding: WidgetStatePropertyAll(EdgeInsets.all(16.0)),
+              //     shape: WidgetStatePropertyAll(
+              //       RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.all(
+              //           Radius.circular(16.0),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              //   child: const Icon(
+              //     Icons.search,
+              //     color: AppColors.primaryWhiteColor,
+              //   ),
+              // ),
             ],
           ),
         ],
@@ -280,27 +345,11 @@ class TaskPageState extends State<TaskPage> {
             color: AppColors.primaryWhiteColor,
           ),
         ),
-        actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(right: 12.0),
-            child: Expanded(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.more_vert,
-                      size: 30,
-                      color: AppColors.primaryWhiteColor,
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ],
+      ),
+      floatingActionButton: FabMenuButton(
+        taskListName: widget.taskListName,
+        taskListId: widget.taskListId,
+        onSortByAlpha: sortByAlpha,
       ),
       body: body,
       backgroundColor: AppColors.primaryWhiteColor,
