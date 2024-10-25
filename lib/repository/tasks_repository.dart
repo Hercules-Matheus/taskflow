@@ -10,13 +10,14 @@ class TasksRepository extends ChangeNotifier {
     notifyListeners(); // Notifica que a lista foi alterada
   }
 
-  List<Tasks> getTasks() {
-    return List.from(tableTask); // Retorna uma cópia da lista
+  List<Tasks> getTasks(int taskListId) {
+    // Filtra as tarefas pelo taskListId
+    return tableTask.where((task) => task.taskListId == taskListId).toList();
   }
 
   void removeTask(Tasks task) {
-    tableTask.remove(task);
-    notifyListeners(); // Notifica que a lista foi alterada
+    tableTask.removeWhere((t) => t.id == task.id);
+    notifyListeners();
   }
 
   void updateTask(Tasks task) {
@@ -33,23 +34,24 @@ class TasksRepository extends ChangeNotifier {
     });
   }
 
-  void sortByName() {
+  void sortByName(int taskListId) {
+    // Ordena somente as tarefas da lista especificada
+    List<Tasks> filteredTasks =
+        tableTask.where((task) => task.taskListId == taskListId).toList();
+
     if (!isSorted) {
-      tableTask.sort((Tasks a, Tasks b) => a.name.compareTo(b.name));
+      filteredTasks.sort((Tasks a, Tasks b) => a.name.compareTo(b.name));
       isSorted = true;
     } else {
-      tableTask.sort((Tasks a, Tasks b) => a.name.compareTo(b.name));
-      tableTask = tableTask.reversed.toList();
+      filteredTasks.sort((Tasks a, Tasks b) => a.name.compareTo(b.name));
+      filteredTasks = filteredTasks.reversed.toList();
       isSorted = false;
     }
 
-    notifyListeners();
-    // Notifica que a lista foi alterada
-  }
+    // Atualiza a lista principal com as tarefas ordenadas
+    tableTask.removeWhere((task) => task.taskListId == taskListId);
+    tableTask.addAll(filteredTasks);
 
-  List<Tasks> findTasksByName(String name) {
-    return tableTask
-        .where((task) => task.name.toLowerCase().contains(name.toLowerCase()))
-        .toList();
+    notifyListeners(); // Notifica que a lista foi alterada
   }
 }

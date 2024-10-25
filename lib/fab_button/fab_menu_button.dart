@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
-import 'package:taskflow/delegates/fab_vertical_delegate.dart';
-import 'package:taskflow/pages/list/list_edit_page.dart';
-import 'package:taskflow/pages/list/list_page.dart';
-import 'package:taskflow/pages/task/task_page.dart';
-import 'package:taskflow/repository/tasks_repository.dart';
+import 'package:taskflow/delegates/fab_horizontal_delegate.dart';
 
 class FabMenuButton extends StatefulWidget {
-  final String taskListName;
   final int taskListId;
   final VoidCallback onSortByAlpha;
+  final VoidCallback onListEdit;
+  final VoidCallback onSearch;
 
   const FabMenuButton(
-      {Key? key,
-      required this.taskListName,
+      {super.key,
       required this.taskListId,
-      required this.onSortByAlpha})
-      : super(key: key);
+      required this.onSortByAlpha,
+      required this.onListEdit,
+      required this.onSearch});
 
   @override
   State<FabMenuButton> createState() => _FabMenuButtonState();
@@ -32,7 +29,7 @@ class _FabMenuButtonState extends State<FabMenuButton>
   void initState() {
     super.initState();
     animation = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 250));
+        vsync: this, duration: const Duration(milliseconds: 200));
   }
 
   @override
@@ -50,7 +47,7 @@ class _FabMenuButtonState extends State<FabMenuButton>
   Widget build(BuildContext context) {
     return Flow(
       clipBehavior: Clip.none,
-      delegate: FabVerticalDelegate(animation: animation),
+      delegate: FabHorizontalDelegate(animation: animation),
       children: <Widget>[
         RawMaterialButton(
           fillColor: actionButtonColor,
@@ -94,7 +91,9 @@ class _FabMenuButtonState extends State<FabMenuButton>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
           ),
-          onPressed: () {},
+          onPressed: () {
+            widget.onListEdit();
+          },
           constraints: const BoxConstraints.tightFor(
             width: 56.0,
             height: 56.0,
@@ -110,7 +109,9 @@ class _FabMenuButtonState extends State<FabMenuButton>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
           ),
-          onPressed: () {},
+          onPressed: () {
+            widget.onSearch();
+          },
           constraints: const BoxConstraints.tightFor(
             width: 56.0,
             height: 56.0,

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
+import 'package:taskflow/models/task.dart';
 import 'package:taskflow/pages/list/list_add_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskflow/pages/task/task_page.dart';
 import 'package:taskflow/repository/list_repository.dart';
+import 'package:taskflow/repository/tasks_repository.dart';
 
 class ListPage extends StatefulWidget {
   static String tag = 'list_page';
@@ -20,12 +23,24 @@ class ListPage extends StatefulWidget {
 }
 
 class ListPageState extends State<ListPage> {
+  final TextEditingController _searchController = TextEditingController();
   late List<Lists> tasklist;
+  List<Lists> filteredLists = [];
+  late TasksRepository tasksRepository;
+  List<Tasks> todayTasks = [];
 
   @override
   void initState() {
     super.initState();
     tasklist = ListRepository.getList();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    tasklist = ListRepository.getList();
+    filteredLists = tasklist;
+    tasksRepository = Provider.of<TasksRepository>(context);
   }
 
   void _toggleCheckbox(int index) {
@@ -80,6 +95,92 @@ class ListPageState extends State<ListPage> {
     );
   }
 
+  void _showSearchDialog() {
+    const Spacer();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          actions: <Widget>[
+            const SizedBox(
+              height: 20,
+            ),
+            TextField(
+              controller: _searchController,
+              onChanged: _filterTasks,
+              cursorColor: AppColors.secondaryGreenColor,
+              decoration: InputDecoration(
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: AppColors.secondaryGreenColor,
+                  ),
+                ),
+                hintText: 'Buscar',
+                hintStyle: const TextStyle(
+                  fontFamily: AppFonts.montserrat,
+                  fontSize: 14.0,
+                ),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Fecha o diálogo
+                  },
+                  icon: const Icon(Icons.close),
+                  color: AppColors.secondaryGreenColor,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              height: 40,
+              child: Row(
+                textDirection: TextDirection.ltr,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      _clearSearch();
+                    },
+                    child: const Text(
+                      "Limpar",
+                      style: TextStyle(
+                        color: AppColors.secondaryGreenColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void _filterTasks(String query) {
+    setState(() {
+      if (query.trim().isEmpty) {
+        _clearSearch(); // Limpa a pesquisa e mostra todas as tarefas
+      } else {
+        // Obtém todas as tarefas e filtra de acordo com o termo de busca
+        tasklist = ListRepository.getList();
+        filteredLists = tasklist
+            .where(
+                (task) => task.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      // Atualiza a lista de tarefas filtradas para mostrar todas as tarefas
+      filteredLists = tasklist;
+      _searchController.clear(); // Limpa o campo de busca
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Lists> taskList = tasklist;
@@ -124,10 +225,10 @@ class ListPageState extends State<ListPage> {
             ],
           ),
           SizedBox(
-            height: 320,
+            height: 560,
             child: Expanded(
               child: ListView.builder(
-                itemCount: taskList.length,
+                itemCount: filteredLists.length,
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
@@ -135,7 +236,6 @@ class ListPageState extends State<ListPage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => TaskPage(
-                            taskListName: taskList[index].name,
                             taskListId: taskList[index].id,
                           ),
                         ),
@@ -149,14 +249,14 @@ class ListPageState extends State<ListPage> {
                           alignment: Alignment.bottomLeft,
                           child: ListTile(
                             textColor: AppColors.primaryBlackColor,
-                            title: Text(taskList[index].name),
-                            titleTextStyle: TextStyle(
+                            title: Text(filteredLists[index].name),
+                            titleTextStyle: const TextStyle(
                               fontFamily: AppFonts.poppins,
                               fontSize: 16.0,
                               fontWeight: FontWeight.w400,
                             ),
-                            subtitle: Text(taskList[index].date),
-                            subtitleTextStyle: TextStyle(
+                            subtitle: Text(filteredLists[index].date),
+                            subtitleTextStyle: const TextStyle(
                                 fontFamily: AppFonts.poppins,
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w100),
@@ -198,26 +298,6 @@ class ListPageState extends State<ListPage> {
               ),
             ),
           ),
-          const Row(
-            textDirection: TextDirection.ltr,
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  'Tarefas de hoje',
-                  textDirection: TextDirection.ltr,
-                  style: TextStyle(
-                      color: AppColors.primaryBlackColor,
-                      fontFamily: AppFonts.montserrat,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 24.0),
-                ),
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 200,
-            child: Row(),
-          ),
           const Spacer(),
           Row(
             textDirection: TextDirection.ltr,
@@ -227,7 +307,6 @@ class ListPageState extends State<ListPage> {
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    debugPrint('clicado');
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -261,7 +340,7 @@ class ListPageState extends State<ListPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  debugPrint('Cliquei');
+                  _showSearchDialog();
                 },
                 style: const ButtonStyle(
                   elevation: WidgetStatePropertyAll(5.0),

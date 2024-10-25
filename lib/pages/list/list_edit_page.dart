@@ -7,14 +7,17 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
-import 'package:taskflow/pages/list/list_page.dart';
+import 'package:taskflow/pages/task/task_page.dart';
 import 'package:taskflow/repository/list_repository.dart';
 
 class ListEditPage extends StatefulWidget {
   static String tag = 'list_edit_page';
-  final int listId;
+  final int taskListId;
 
-  const ListEditPage({super.key, required this.listId});
+  const ListEditPage({
+    super.key,
+    required this.taskListId,
+  });
 
   @override
   ListEditPageState createState() => ListEditPageState();
@@ -180,7 +183,7 @@ class ListEditPageState extends State<ListEditPage> {
                                     TextCapitalization.sentences,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    int id = widget.listId;
+                                    int id = widget.taskListId;
                                     setState(() {
                                       _listNameController.text =
                                           ListRepository.findListById(id).name;
@@ -238,7 +241,7 @@ class ListEditPageState extends State<ListEditPage> {
                                 keyboardType: TextInputType.datetime,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    int id = widget.listId;
+                                    int id = widget.taskListId;
                                     setState(() {
                                       _dateController.text =
                                           ListRepository.findListById(id).date;
@@ -313,7 +316,7 @@ class ListEditPageState extends State<ListEditPage> {
                           onPressed: () {
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
-                              int id = widget.listId;
+                              int id = widget.taskListId;
                               _editList(id);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -323,11 +326,14 @@ class ListEditPageState extends State<ListEditPage> {
                               );
                               Future.delayed(const Duration(milliseconds: 1500),
                                   () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const ListPage(),
-                                    ));
+                                Navigator.pop(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TaskPage(
+                                      taskListId: widget.taskListId,
+                                    ),
+                                  ),
+                                );
                               });
                             }
                           },

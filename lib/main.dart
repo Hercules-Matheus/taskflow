@@ -10,11 +10,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('pt_BR', null);
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-            create: (_) => TasksRepository()), // Adiciona o TasksRepository
-      ],
+    ChangeNotifierProvider(
+      create: (context) => TasksRepository(), // Adiciona o TasksRepository
       child: MyApp(),
     ),
   );

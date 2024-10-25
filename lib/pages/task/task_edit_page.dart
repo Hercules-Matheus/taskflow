@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -313,8 +315,7 @@ class TaskEditPageState extends State<TaskEditPage> {
                           onPressed: () {
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
-                              int id = widget.taskId;
-                              _editTask(id);
+                              _editTask(widget.taskId);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Tarefa alterada'),

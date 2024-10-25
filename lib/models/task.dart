@@ -4,10 +4,12 @@ class Tasks {
   String name;
   String date;
   bool isChecked;
+  int taskListId;
 
   Tasks({
     required this.name,
     required this.date,
     required this.isChecked,
+    required this.taskListId,
   });
 }

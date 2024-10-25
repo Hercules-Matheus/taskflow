@@ -25,7 +25,7 @@ class ListAddPageState extends State<ListAddPage> {
   final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
 
-  void _addTask() {
+  void _addList() {
     // Adiciona a nova lista ao repositório
     ListRepository.addList(Lists(
         name: _listNameController.text,
@@ -295,7 +295,7 @@ class ListAddPageState extends State<ListAddPage> {
                           onPressed: () {
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
-                              _addTask();
+                              _addList();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Lista salva'),

@@ -12,8 +12,9 @@ import 'package:taskflow/repository/tasks_repository.dart';
 
 class TaskAddPage extends StatefulWidget {
   static String tag = 'task_add_page';
+  final int taskListId;
 
-  const TaskAddPage({super.key});
+  const TaskAddPage({super.key, required this.taskListId});
 
   @override
   TaskAddPageState createState() => TaskAddPageState();
@@ -35,10 +36,14 @@ class TaskAddPageState extends State<TaskAddPage> {
 
   void _addTask() {
     // Adiciona a nova tarefa ao repositório
-    tasksRepository.addTask(Tasks(
+    tasksRepository.addTask(
+      Tasks(
         name: _taskNameController.text,
         date: _dateController.text,
-        isChecked: false));
+        isChecked: false,
+        taskListId: widget.taskListId,
+      ),
+    );
 
     // Limpa os campos de texto
     _taskNameController.clear();

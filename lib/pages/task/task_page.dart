@@ -8,15 +8,15 @@ import 'package:taskflow/models/task.dart';
 import 'package:taskflow/pages/list/list_edit_page.dart';
 import 'package:taskflow/pages/task/task_add_page.dart';
 import 'package:taskflow/pages/task/task_edit_page.dart';
+import 'package:taskflow/repository/list_repository.dart';
 import 'package:taskflow/repository/tasks_repository.dart';
 
 class TaskPage extends StatefulWidget {
   static String tag = 'task_page';
-  final String taskListName;
+
   final int taskListId;
 
-  const TaskPage(
-      {super.key, required this.taskListName, required this.taskListId});
+  const TaskPage({super.key, required this.taskListId});
 
   @override
   TaskPageState createState() => TaskPageState();
@@ -26,18 +26,19 @@ class TaskPageState extends State<TaskPage> {
   late List<Tasks> tasks;
   late String listName;
   final TextEditingController _searchController = TextEditingController();
+  List<Tasks> filteredTasks = [];
   late TasksRepository tasksRepository;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     tasksRepository = Provider.of<TasksRepository>(context);
-    tasks = tasksRepository.getTasks();
-  }
-
-  @override
-  void initState() {
-    super.initState();
+    _updateTasksList();
   }
 
   void _toggleCheckbox(int index) {
@@ -55,8 +56,12 @@ class TaskPageState extends State<TaskPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           actions: <Widget>[
+            const SizedBox(
+              height: 20,
+            ),
             TextField(
               controller: _searchController,
+              onChanged: _filterTasks,
               cursorColor: AppColors.secondaryGreenColor,
               decoration: InputDecoration(
                 focusedBorder: const UnderlineInputBorder(
@@ -64,28 +69,99 @@ class TaskPageState extends State<TaskPage> {
                     color: AppColors.secondaryGreenColor,
                   ),
                 ),
-                hintText: 'Buscar tarefas',
+                hintText: 'Buscar',
                 hintStyle: const TextStyle(
                   fontFamily: AppFonts.montserrat,
                   fontSize: 14.0,
                 ),
                 suffixIcon: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Fecha o diálogo
+                  },
+                  icon: const Icon(Icons.close),
                   color: AppColors.secondaryGreenColor,
                 ),
               ),
             ),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              height: 40,
+              child: Row(
+                textDirection: TextDirection.ltr,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      _clearSearch();
+                    },
+                    child: const Text(
+                      "Limpar",
+                      style: TextStyle(
+                        color: AppColors.secondaryGreenColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
           ],
         );
       },
     );
   }
 
-  void sortByAlpha() {
-    tasksRepository.sortByName();
+  void _updateTasksList() {
     setState(() {
-      tasks = tasksRepository.getTasks();
+      // Atualiza a lista `filteredTasks` após mudanças
+      tasks = tasksRepository.getTasks(widget.taskListId);
+      filteredTasks = tasks;
+    });
+  }
+
+  void _filterTasks(String query) {
+    setState(() {
+      if (query.trim().isEmpty) {
+        _clearSearch(); // Limpa a pesquisa e mostra todas as tarefas
+      } else {
+        // Obtém todas as tarefas e filtra de acordo com o termo de busca
+        tasks = tasksRepository.getTasks(widget.taskListId);
+        filteredTasks = tasks
+            .where(
+                (task) => task.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      // Atualiza a lista de tarefas filtradas para mostrar todas as tarefas
+      filteredTasks = tasks;
+      _searchController.clear(); // Limpa o campo de busca
+    });
+  }
+
+  void sortByAlpha() {
+    tasksRepository.sortByName(widget.taskListId);
+    setState(() {
+      _updateTasksList();
+    });
+  }
+
+  void listEdit() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ListEditPage(
+          taskListId: widget.taskListId,
+        ),
+      ),
+    ).then((_) {
+      setState(() {
+        _updateTasksList();
+      });
     });
   }
 
@@ -139,6 +215,7 @@ class TaskPageState extends State<TaskPage> {
 
   @override
   Widget build(BuildContext context) {
+    String appBarTitle = ListRepository.findListById(widget.taskListId).name;
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         systemNavigationBarColor: AppColors.primaryGreenColor,
@@ -177,7 +254,7 @@ class TaskPageState extends State<TaskPage> {
               children: <Widget>[
                 Expanded(
                   child: ListView.builder(
-                    itemCount: tasks.length,
+                    itemCount: filteredTasks.length,
                     itemBuilder: (context, index) {
                       return Card(
                         color: AppColors.secondaryWhiteColor,
@@ -195,14 +272,21 @@ class TaskPageState extends State<TaskPage> {
                                       _toggleCheckbox(index);
                                     },
                                     icon: Icon(
-                                      tasks[index].isChecked
+                                      filteredTasks[index].isChecked
                                           ? Icons.radio_button_checked
                                           : Icons.radio_button_unchecked,
                                       color: AppColors.primaryGreenColor,
                                     ),
                                   ),
-                                  title: Text(tasks[index].name),
-                                  subtitle: Text(tasks[index].date),
+                                  title: Text(filteredTasks[index].name),
+                                  titleTextStyle: const TextStyle(
+                                      fontFamily: AppFonts.poppins,
+                                      color: AppColors.primaryBlackColor),
+                                  subtitle: Text(filteredTasks[index].date),
+                                  subtitleTextStyle: const TextStyle(
+                                    fontFamily: AppFonts.poppins,
+                                    color: AppColors.secondaryBlackColor,
+                                  ),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
@@ -260,13 +344,16 @@ class TaskPageState extends State<TaskPage> {
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    debugPrint('clicado');
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const TaskAddPage(),
+                        builder: (context) => TaskAddPage(
+                          taskListId: widget.taskListId,
+                        ),
                       ),
-                    );
+                    ).then((_) {
+                      _updateTasksList();
+                    });
                   },
                   label: const Text(
                     'Nova Tarefa',
@@ -292,29 +379,6 @@ class TaskPageState extends State<TaskPage> {
                   ),
                 ),
               ),
-
-              // ElevatedButton(
-              //   onPressed: () {
-              //     _showSearchDialog();
-              //   },
-              //   style: const ButtonStyle(
-              //     elevation: WidgetStatePropertyAll(5.0),
-              //     backgroundColor:
-              //         WidgetStatePropertyAll(AppColors.primaryGreenColor),
-              //     padding: WidgetStatePropertyAll(EdgeInsets.all(16.0)),
-              //     shape: WidgetStatePropertyAll(
-              //       RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.all(
-              //           Radius.circular(16.0),
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              //   child: const Icon(
-              //     Icons.search,
-              //     color: AppColors.primaryWhiteColor,
-              //   ),
-              // ),
             ],
           ),
         ],
@@ -337,7 +401,7 @@ class TaskPageState extends State<TaskPage> {
         ),
         centerTitle: false,
         title: Text(
-          widget.taskListName,
+          appBarTitle,
           style: const TextStyle(
             fontFamily: AppFonts.montserrat,
             fontSize: 24.0,
@@ -347,9 +411,10 @@ class TaskPageState extends State<TaskPage> {
         ),
       ),
       floatingActionButton: FabMenuButton(
-        taskListName: widget.taskListName,
         taskListId: widget.taskListId,
         onSortByAlpha: sortByAlpha,
+        onListEdit: listEdit,
+        onSearch: _showSearchDialog,
       ),
       body: body,
       backgroundColor: AppColors.primaryWhiteColor,
