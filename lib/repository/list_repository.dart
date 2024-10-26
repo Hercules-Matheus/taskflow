@@ -22,7 +22,7 @@ class ListRepository {
     }
   }
 
-  static Lists findListById(int id) {
+  static Lists findListById(String id) {
     return tableList.firstWhere((tasklist) => tasklist.id == id, orElse: () {
       throw Exception("A lista '$id' não foi encontrada.");
     });

@@ -10,7 +10,7 @@ class TasksRepository extends ChangeNotifier {
     notifyListeners(); // Notifica que a lista foi alterada
   }
 
-  List<Tasks> getTasks(int taskListId) {
+  List<Tasks> getTasks(String taskListId) {
     // Filtra as tarefas pelo taskListId
     return tableTask.where((task) => task.taskListId == taskListId).toList();
   }
@@ -28,13 +28,22 @@ class TasksRepository extends ChangeNotifier {
     }
   }
 
-  Tasks findTaskById(int id) {
+  Tasks findTaskById(String id) {
+    // Verifica o número de itens na lista
+    print("Número de tarefas na lista: ${tableTask.length}");
+
+    // Imprime todos os IDs presentes na lista
+    for (var task in tableTask) {
+      print("ID disponível: ${task.id}");
+    }
+
+    // Procura a tarefa pelo ID
     return tableTask.firstWhere((task) => task.id == id, orElse: () {
       throw Exception("A tarefa '$id' não foi encontrada.");
     });
   }
 
-  void sortByName(int taskListId) {
+  void sortByName(String taskListId) {
     // Ordena somente as tarefas da lista especificada
     List<Tasks> filteredTasks =
         tableTask.where((task) => task.taskListId == taskListId).toList();

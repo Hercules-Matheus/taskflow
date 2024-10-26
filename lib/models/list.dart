@@ -1,6 +1,7 @@
+import 'package:uuid/uuid.dart';
+
 class Lists {
-  static int _idCounter = 0;
-  final int id = _idCounter++;
+  final String id = const Uuid().v4();
   String name;
   String date;
   bool isChecked;

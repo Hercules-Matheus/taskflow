@@ -3,7 +3,7 @@ import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/delegates/fab_horizontal_delegate.dart';
 
 class FabMenuButton extends StatefulWidget {
-  final int taskListId;
+  final String taskListId;
   final VoidCallback onSortByAlpha;
   final VoidCallback onListEdit;
   final VoidCallback onSearch;

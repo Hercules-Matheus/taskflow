@@ -12,7 +12,7 @@ import 'package:taskflow/repository/tasks_repository.dart';
 
 class TaskAddPage extends StatefulWidget {
   static String tag = 'task_add_page';
-  final int taskListId;
+  final String taskListId;
 
   const TaskAddPage({super.key, required this.taskListId});
 

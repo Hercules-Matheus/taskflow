@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:marquee/marquee.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/fab_button/fab_menu_button.dart';
@@ -14,7 +15,7 @@ import 'package:taskflow/repository/tasks_repository.dart';
 class TaskPage extends StatefulWidget {
   static String tag = 'task_page';
 
-  final int taskListId;
+  final String taskListId;
 
   const TaskPage({super.key, required this.taskListId});
 
@@ -39,6 +40,227 @@ class TaskPageState extends State<TaskPage> {
     super.didChangeDependencies();
     tasksRepository = Provider.of<TasksRepository>(context);
     _updateTasksList();
+  }
+
+  showTaskTitle(index) {
+    if (filteredTasks[index].date.isNotEmpty &&
+        filteredTasks[index].name.length > 25) {
+      return SizedBox(
+        height: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: TextDirection.ltr,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(
+                  height: 24,
+                  width: 165,
+                  child: Marquee(
+                    text: filteredTasks[index].name,
+                    style: const TextStyle(
+                      fontFamily: AppFonts.poppins,
+                      fontSize: 16.0,
+                      color: AppColors.primaryBlackColor,
+                    ),
+                    scrollAxis: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    blankSpace: 20,
+                    velocity: 100,
+                    pauseAfterRound: const Duration(seconds: 1),
+                    accelerationDuration: const Duration(seconds: 1),
+                    accelerationCurve: Curves.linear,
+                    decelerationDuration: const Duration(milliseconds: 500),
+                    decelerationCurve: Curves.easeOut,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  filteredTasks[index].date,
+                  style: const TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 12.0,
+                    color: AppColors.primaryBlackColor,
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
+      );
+    } else if (filteredTasks[index].date.isEmpty &&
+        filteredTasks[index].name.length > 25) {
+      return SizedBox(
+        height: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: TextDirection.ltr,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(
+                  height: 24,
+                  width: 165,
+                  child: Marquee(
+                    text: filteredTasks[index].name,
+                    style: const TextStyle(
+                      fontFamily: AppFonts.poppins,
+                      fontSize: 16.0,
+                      color: AppColors.primaryBlackColor,
+                    ),
+                    scrollAxis: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    blankSpace: 20,
+                    velocity: 100,
+                    pauseAfterRound: const Duration(seconds: 1),
+                    accelerationDuration: const Duration(seconds: 1),
+                    accelerationCurve: Curves.linear,
+                    decelerationDuration: const Duration(milliseconds: 500),
+                    decelerationCurve: Curves.easeOut,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } else if (filteredTasks[index].date.isNotEmpty &&
+        filteredTasks[index].name.length <= 25) {
+      return SizedBox(
+        height: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: TextDirection.ltr,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  filteredTasks[index].name,
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 16.0,
+                    color: AppColors.primaryBlackColor,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  filteredTasks[index].date,
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 12.0,
+                    color: AppColors.primaryBlackColor,
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
+      return SizedBox(
+        height: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: TextDirection.ltr,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  filteredTasks[index].name,
+                  style: const TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 16.0,
+                    color: AppColors.primaryBlackColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  showListTitle() {
+    String appBarTitle = ListRepository.findListById(widget.taskListId).name;
+    if (appBarTitle.length > 24) {
+      return Row(
+        textDirection: TextDirection.ltr,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          SizedBox(
+            height: 32,
+            width: 300,
+            child: Marquee(
+              text: appBarTitle,
+              style: const TextStyle(
+                fontFamily: AppFonts.montserrat,
+                fontSize: 24.0,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primaryWhiteColor,
+              ),
+              scrollAxis: Axis.horizontal,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              blankSpace: 20,
+              velocity: 100,
+              pauseAfterRound: const Duration(seconds: 3),
+              accelerationDuration: const Duration(seconds: 1),
+              accelerationCurve: Curves.linear,
+              decelerationDuration: const Duration(milliseconds: 500),
+              decelerationCurve: Curves.easeOut,
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Row(
+        textDirection: TextDirection.ltr,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          SizedBox(
+            height: 32,
+            width: 300,
+            child: Text(
+              appBarTitle,
+              style: const TextStyle(
+                fontFamily: AppFonts.montserrat,
+                fontSize: 24.0,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primaryWhiteColor,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
   }
 
   void _toggleCheckbox(int index) {
@@ -150,6 +372,13 @@ class TaskPageState extends State<TaskPage> {
     });
   }
 
+  void printTasks() {
+    for (var task in tasksRepository.tableTask) {
+      print(
+          'ID: ${task.id}, Nome: ${task.name}, Data: ${task.date}, Concluído: ${task.isChecked}, Lista ID: ${task.taskListId}');
+    }
+  }
+
   void listEdit() {
     Navigator.push(
       context,
@@ -215,7 +444,6 @@ class TaskPageState extends State<TaskPage> {
 
   @override
   Widget build(BuildContext context) {
-    String appBarTitle = ListRepository.findListById(widget.taskListId).name;
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         systemNavigationBarColor: AppColors.primaryGreenColor,
@@ -278,15 +506,7 @@ class TaskPageState extends State<TaskPage> {
                                       color: AppColors.primaryGreenColor,
                                     ),
                                   ),
-                                  title: Text(filteredTasks[index].name),
-                                  titleTextStyle: const TextStyle(
-                                      fontFamily: AppFonts.poppins,
-                                      color: AppColors.primaryBlackColor),
-                                  subtitle: Text(filteredTasks[index].date),
-                                  subtitleTextStyle: const TextStyle(
-                                    fontFamily: AppFonts.poppins,
-                                    color: AppColors.secondaryBlackColor,
-                                  ),
+                                  title: showTaskTitle(index),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
@@ -306,6 +526,7 @@ class TaskPageState extends State<TaskPage> {
                                         tooltip: 'Deletar',
                                         iconSize: 28,
                                         onPressed: () {
+                                          printTasks();
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -400,15 +621,7 @@ class TaskPageState extends State<TaskPage> {
           ),
         ),
         centerTitle: false,
-        title: Text(
-          appBarTitle,
-          style: const TextStyle(
-            fontFamily: AppFonts.montserrat,
-            fontSize: 24.0,
-            fontWeight: FontWeight.w500,
-            color: AppColors.primaryWhiteColor,
-          ),
-        ),
+        title: showListTitle(),
       ),
       floatingActionButton: FabMenuButton(
         taskListId: widget.taskListId,

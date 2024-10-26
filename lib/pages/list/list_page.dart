@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:marquee/marquee.dart';
 import 'package:provider/provider.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
-import 'package:taskflow/models/task.dart';
 import 'package:taskflow/pages/list/list_add_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskflow/pages/task/task_page.dart';
@@ -27,7 +27,6 @@ class ListPageState extends State<ListPage> {
   late List<Lists> tasklist;
   List<Lists> filteredLists = [];
   late TasksRepository tasksRepository;
-  List<Tasks> todayTasks = [];
 
   @override
   void initState() {
@@ -173,6 +172,171 @@ class ListPageState extends State<ListPage> {
     });
   }
 
+  showListTitle(index) {
+    if (filteredLists[index].date.isNotEmpty &&
+        filteredLists[index].name.length > 25) {
+      return SizedBox(
+        height: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: TextDirection.ltr,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(
+                  height: 24,
+                  width: 230,
+                  child: Marquee(
+                    text: filteredLists[index].name,
+                    style: const TextStyle(
+                      fontFamily: AppFonts.poppins,
+                      fontSize: 16.0,
+                      color: AppColors.primaryBlackColor,
+                    ),
+                    scrollAxis: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    blankSpace: 20,
+                    velocity: 100,
+                    pauseAfterRound: const Duration(seconds: 3),
+                    accelerationDuration: const Duration(seconds: 1),
+                    accelerationCurve: Curves.linear,
+                    decelerationDuration: const Duration(milliseconds: 500),
+                    decelerationCurve: Curves.easeOut,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  filteredLists[index].date,
+                  style: const TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 12.0,
+                    color: AppColors.primaryBlackColor,
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
+      );
+    } else if (filteredLists[index].date.isEmpty &&
+        filteredLists[index].name.length > 25) {
+      return SizedBox(
+        height: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: TextDirection.ltr,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(
+                  height: 24,
+                  width: 230,
+                  child: Marquee(
+                    text: filteredLists[index].name,
+                    style: const TextStyle(
+                      fontFamily: AppFonts.poppins,
+                      fontSize: 16.0,
+                      color: AppColors.primaryBlackColor,
+                    ),
+                    scrollAxis: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    blankSpace: 20,
+                    velocity: 100,
+                    pauseAfterRound: const Duration(seconds: 3),
+                    accelerationDuration: const Duration(seconds: 1),
+                    accelerationCurve: Curves.linear,
+                    decelerationDuration: const Duration(milliseconds: 500),
+                    decelerationCurve: Curves.easeOut,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } else if (filteredLists[index].date.isNotEmpty &&
+        filteredLists[index].name.length <= 25) {
+      return SizedBox(
+        height: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: TextDirection.ltr,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  filteredLists[index].name,
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 16.0,
+                    color: AppColors.primaryBlackColor,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  filteredLists[index].date,
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 12.0,
+                    color: AppColors.primaryBlackColor,
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
+      return SizedBox(
+        height: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          textDirection: TextDirection.ltr,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  filteredLists[index].name,
+                  style: const TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 16.0,
+                    color: AppColors.primaryBlackColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   void _clearSearch() {
     setState(() {
       // Atualiza a lista de tarefas filtradas para mostrar todas as tarefas
@@ -249,17 +413,7 @@ class ListPageState extends State<ListPage> {
                           alignment: Alignment.bottomLeft,
                           child: ListTile(
                             textColor: AppColors.primaryBlackColor,
-                            title: Text(filteredLists[index].name),
-                            titleTextStyle: const TextStyle(
-                              fontFamily: AppFonts.poppins,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            subtitle: Text(filteredLists[index].date),
-                            subtitleTextStyle: const TextStyle(
-                                fontFamily: AppFonts.poppins,
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.w100),
+                            title: showListTitle(index),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[

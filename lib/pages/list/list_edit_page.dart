@@ -12,7 +12,7 @@ import 'package:taskflow/repository/list_repository.dart';
 
 class ListEditPage extends StatefulWidget {
   static String tag = 'list_edit_page';
-  final int taskListId;
+  final String taskListId;
 
   const ListEditPage({
     super.key,
@@ -30,7 +30,7 @@ class ListEditPageState extends State<ListEditPage> {
   final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
 
-  void _editList(int id) {
+  void _editList(String id) {
     Lists updatedList = ListRepository.findListById(id);
     setState(() {
       updatedList.name = _listNameController.text;
@@ -183,10 +183,11 @@ class ListEditPageState extends State<ListEditPage> {
                                     TextCapitalization.sentences,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    int id = widget.taskListId;
                                     setState(() {
                                       _listNameController.text =
-                                          ListRepository.findListById(id).name;
+                                          ListRepository.findListById(
+                                                  widget.taskListId)
+                                              .name;
                                     });
                                     return null;
                                   }
@@ -241,10 +242,11 @@ class ListEditPageState extends State<ListEditPage> {
                                 keyboardType: TextInputType.datetime,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    int id = widget.taskListId;
                                     setState(() {
                                       _dateController.text =
-                                          ListRepository.findListById(id).date;
+                                          ListRepository.findListById(
+                                                  widget.taskListId)
+                                              .date;
                                     });
                                     return null;
                                   }
@@ -316,8 +318,7 @@ class ListEditPageState extends State<ListEditPage> {
                           onPressed: () {
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
-                              int id = widget.taskListId;
-                              _editList(id);
+                              _editList(widget.taskListId);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Lista alterada'),

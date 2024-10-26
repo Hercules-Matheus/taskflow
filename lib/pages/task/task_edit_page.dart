@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/task.dart';
@@ -13,7 +14,7 @@ import 'package:taskflow/repository/tasks_repository.dart';
 
 class TaskEditPage extends StatefulWidget {
   static String tag = 'task_edit_page';
-  final int taskId;
+  final String taskId;
 
   const TaskEditPage({super.key, required this.taskId});
 
@@ -27,9 +28,21 @@ class TaskEditPageState extends State<TaskEditPage> {
   final TextEditingController _taskNameController = TextEditingController();
   final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
-  final TasksRepository tasksRepository = TasksRepository();
+  late TasksRepository tasksRepository;
 
-  void _editTask(int id) {
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting('pt_BR', null);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    tasksRepository = Provider.of<TasksRepository>(context);
+  }
+
+  void _editTask(String id) {
     Tasks updatedTask = tasksRepository.findTaskById(id);
     setState(() {
       updatedTask.name = _taskNameController.text;
@@ -41,12 +54,6 @@ class TaskEditPageState extends State<TaskEditPage> {
     // Limpa os campos de texto
     _taskNameController.clear();
     _dateController.clear();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    initializeDateFormatting('pt_BR', null);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -182,10 +189,10 @@ class TaskEditPageState extends State<TaskEditPage> {
                                     TextCapitalization.sentences,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    int id = widget.taskId;
                                     setState(() {
-                                      _taskNameController.text =
-                                          tasksRepository.findTaskById(id).name;
+                                      _taskNameController.text = tasksRepository
+                                          .findTaskById(widget.taskId)
+                                          .name;
                                     });
                                     return null;
                                   }
@@ -240,10 +247,10 @@ class TaskEditPageState extends State<TaskEditPage> {
                                 keyboardType: TextInputType.datetime,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    int id = widget.taskId;
                                     setState(() {
-                                      _dateController.text =
-                                          tasksRepository.findTaskById(id).date;
+                                      _dateController.text = tasksRepository
+                                          .findTaskById(widget.taskId)
+                                          .date;
                                     });
                                     return null;
                                   }
@@ -313,6 +320,7 @@ class TaskEditPageState extends State<TaskEditPage> {
                             ),
                           ),
                           onPressed: () {
+                            print(widget.taskId);
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
                               _editTask(widget.taskId);
