@@ -29,14 +29,6 @@ class TasksRepository extends ChangeNotifier {
   }
 
   Tasks findTaskById(String id) {
-    // Verifica o número de itens na lista
-    print("Número de tarefas na lista: ${tableTask.length}");
-
-    // Imprime todos os IDs presentes na lista
-    for (var task in tableTask) {
-      print("ID disponível: ${task.id}");
-    }
-
     // Procura a tarefa pelo ID
     return tableTask.firstWhere((task) => task.id == id, orElse: () {
       throw Exception("A tarefa '$id' não foi encontrada.");

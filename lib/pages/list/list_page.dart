@@ -27,6 +27,8 @@ class ListPageState extends State<ListPage> {
   late List<Lists> tasklist;
   List<Lists> filteredLists = [];
   late TasksRepository tasksRepository;
+  final ScrollController _scrollController = ScrollController();
+  int? highlightedListIndex;
 
   @override
   void initState() {
@@ -40,6 +42,9 @@ class ListPageState extends State<ListPage> {
     tasklist = ListRepository.getList();
     filteredLists = tasklist;
     tasksRepository = Provider.of<TasksRepository>(context);
+    if (_searchController.text.isEmpty) {
+      _clearSearch();
+    }
   }
 
   void _toggleCheckbox(int index) {
@@ -106,7 +111,7 @@ class ListPageState extends State<ListPage> {
             ),
             TextField(
               controller: _searchController,
-              onChanged: _filterTasks,
+              onChanged: _scrollToList,
               cursorColor: AppColors.secondaryGreenColor,
               decoration: InputDecoration(
                 focusedBorder: const UnderlineInputBorder(
@@ -157,19 +162,23 @@ class ListPageState extends State<ListPage> {
     );
   }
 
-  void _filterTasks(String query) {
-    setState(() {
-      if (query.trim().isEmpty) {
-        _clearSearch(); // Limpa a pesquisa e mostra todas as tarefas
-      } else {
-        // Obtém todas as tarefas e filtra de acordo com o termo de busca
-        tasklist = ListRepository.getList();
-        filteredLists = tasklist
-            .where(
-                (task) => task.name.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      }
-    });
+  void _scrollToList(String query) {
+    int index = tasklist.indexWhere(
+      (list) => list.name.toLowerCase().contains(
+            query.toLowerCase(),
+          ),
+    );
+
+    if (index != -1) {
+      setState(() {
+        highlightedListIndex = index;
+      });
+      _scrollController.animateTo(
+        index * 72,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   showListTitle(index) {
@@ -283,7 +292,7 @@ class ListPageState extends State<ListPage> {
               children: <Widget>[
                 Text(
                   filteredLists[index].name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 16.0,
                     color: AppColors.primaryBlackColor,
@@ -297,7 +306,7 @@ class ListPageState extends State<ListPage> {
               children: <Widget>[
                 Text(
                   filteredLists[index].date,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 12.0,
                     color: AppColors.primaryBlackColor,
@@ -341,6 +350,7 @@ class ListPageState extends State<ListPage> {
     setState(() {
       // Atualiza a lista de tarefas filtradas para mostrar todas as tarefas
       filteredLists = tasklist;
+      highlightedListIndex = null;
       _searchController.clear(); // Limpa o campo de busca
     });
   }
@@ -392,8 +402,10 @@ class ListPageState extends State<ListPage> {
             height: 560,
             child: Expanded(
               child: ListView.builder(
+                controller: _scrollController,
                 itemCount: filteredLists.length,
                 itemBuilder: (context, index) {
+                  bool isHighLighted = index == highlightedListIndex;
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -404,9 +416,20 @@ class ListPageState extends State<ListPage> {
                           ),
                         ),
                       );
+                      _clearSearch();
                     },
                     child: Card(
                       color: AppColors.secondaryWhiteColor,
+                      shape: isHighLighted
+                          ? RoundedRectangleBorder(
+                              side: const BorderSide(
+                                  color: AppColors.primaryGreenColor,
+                                  width: 2.0),
+                              borderRadius: BorderRadius.circular(8.0),
+                            )
+                          : RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
                       child: SizedBox(
                         height: 72,
                         child: Container(
@@ -492,26 +515,29 @@ class ListPageState extends State<ListPage> {
                   ),
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  _showSearchDialog();
-                },
-                style: const ButtonStyle(
-                  elevation: WidgetStatePropertyAll(5.0),
-                  backgroundColor:
-                      WidgetStatePropertyAll(AppColors.primaryGreenColor),
-                  padding: WidgetStatePropertyAll(EdgeInsets.all(16.0)),
-                  shape: WidgetStatePropertyAll(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(16.0),
+              Container(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    _showSearchDialog();
+                  },
+                  style: const ButtonStyle(
+                    elevation: WidgetStatePropertyAll(5.0),
+                    backgroundColor:
+                        WidgetStatePropertyAll(AppColors.primaryGreenColor),
+                    padding: WidgetStatePropertyAll(EdgeInsets.all(16.0)),
+                    shape: WidgetStatePropertyAll(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                child: const Icon(
-                  Icons.search,
-                  color: AppColors.primaryWhiteColor,
+                  child: const Icon(
+                    Icons.search,
+                    color: AppColors.primaryWhiteColor,
+                  ),
                 ),
               ),
             ],

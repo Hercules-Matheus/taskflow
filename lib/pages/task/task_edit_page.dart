@@ -320,7 +320,6 @@ class TaskEditPageState extends State<TaskEditPage> {
                             ),
                           ),
                           onPressed: () {
-                            print(widget.taskId);
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
                               _editTask(widget.taskId);

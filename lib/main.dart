@@ -5,9 +5,14 @@ import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/pages/list/list_page.dart';
 import 'package:provider/provider.dart';
 import 'package:taskflow/repository/tasks_repository.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await initializeDateFormatting('pt_BR', null);
   runApp(
     ChangeNotifierProvider(

@@ -29,6 +29,8 @@ class TaskPageState extends State<TaskPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Tasks> filteredTasks = [];
   late TasksRepository tasksRepository;
+  final ScrollController _scrollController = ScrollController();
+  int? highlightedTaskIndex;
 
   @override
   void initState() {
@@ -40,6 +42,9 @@ class TaskPageState extends State<TaskPage> {
     super.didChangeDependencies();
     tasksRepository = Provider.of<TasksRepository>(context);
     _updateTasksList();
+    if (_searchController.text.isEmpty) {
+      _clearSearch();
+    }
   }
 
   showTaskTitle(index) {
@@ -153,7 +158,7 @@ class TaskPageState extends State<TaskPage> {
               children: <Widget>[
                 Text(
                   filteredTasks[index].name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 16.0,
                     color: AppColors.primaryBlackColor,
@@ -167,7 +172,7 @@ class TaskPageState extends State<TaskPage> {
               children: <Widget>[
                 Text(
                   filteredTasks[index].date,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 12.0,
                     color: AppColors.primaryBlackColor,
@@ -283,7 +288,7 @@ class TaskPageState extends State<TaskPage> {
             ),
             TextField(
               controller: _searchController,
-              onChanged: _filterTasks,
+              onChanged: _scrollToTask,
               cursorColor: AppColors.secondaryGreenColor,
               decoration: InputDecoration(
                 focusedBorder: const UnderlineInputBorder(
@@ -342,25 +347,30 @@ class TaskPageState extends State<TaskPage> {
     });
   }
 
-  void _filterTasks(String query) {
-    setState(() {
-      if (query.trim().isEmpty) {
-        _clearSearch(); // Limpa a pesquisa e mostra todas as tarefas
-      } else {
-        // Obtém todas as tarefas e filtra de acordo com o termo de busca
-        tasks = tasksRepository.getTasks(widget.taskListId);
-        filteredTasks = tasks
-            .where(
-                (task) => task.name.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      }
-    });
+  void _scrollToTask(String query) {
+    int index = tasks.indexWhere(
+      (task) => task.name.toLowerCase().contains(
+            query.toLowerCase(),
+          ),
+    );
+
+    if (index != -1) {
+      setState(() {
+        highlightedTaskIndex = index;
+      });
+      _scrollController.animateTo(
+        index * 72.0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   void _clearSearch() {
     setState(() {
       // Atualiza a lista de tarefas filtradas para mostrar todas as tarefas
       filteredTasks = tasks;
+      highlightedTaskIndex = null;
       _searchController.clear(); // Limpa o campo de busca
     });
   }
@@ -370,13 +380,6 @@ class TaskPageState extends State<TaskPage> {
     setState(() {
       _updateTasksList();
     });
-  }
-
-  void printTasks() {
-    for (var task in tasksRepository.tableTask) {
-      print(
-          'ID: ${task.id}, Nome: ${task.name}, Data: ${task.date}, Concluído: ${task.isChecked}, Lista ID: ${task.taskListId}');
-    }
   }
 
   void listEdit() {
@@ -482,10 +485,22 @@ class TaskPageState extends State<TaskPage> {
               children: <Widget>[
                 Expanded(
                   child: ListView.builder(
+                    controller: _scrollController,
                     itemCount: filteredTasks.length,
                     itemBuilder: (context, index) {
+                      bool isHighLighted = index == highlightedTaskIndex;
                       return Card(
                         color: AppColors.secondaryWhiteColor,
+                        shape: isHighLighted
+                            ? RoundedRectangleBorder(
+                                side: const BorderSide(
+                                    color: AppColors.primaryGreenColor,
+                                    width: 2.0),
+                                borderRadius: BorderRadius.circular(8.0),
+                              )
+                            : RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
@@ -526,7 +541,6 @@ class TaskPageState extends State<TaskPage> {
                                         tooltip: 'Deletar',
                                         iconSize: 28,
                                         onPressed: () {
-                                          printTasks();
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(

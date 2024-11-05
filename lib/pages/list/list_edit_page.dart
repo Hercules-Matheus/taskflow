@@ -136,7 +136,7 @@ class ListEditPageState extends State<ListEditPage> {
                     const Row(
                       children: <Widget>[
                         Text(
-                          'Edite a tarefa',
+                          'Edite a lista',
                           style: TextStyle(
                             color: AppColors.primaryGreenColor,
                             fontFamily: AppFonts.montserrat,
