@@ -6,6 +6,8 @@ import 'package:taskflow/pages/list/list_page.dart';
 import 'package:provider/provider.dart';
 import 'package:taskflow/repository/tasks_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:taskflow/services/auth_service.dart';
+import 'package:taskflow/widget/auth_check.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -15,8 +17,13 @@ void main() async {
   );
   await initializeDateFormatting('pt_BR', null);
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => TasksRepository(), // Adiciona o TasksRepository
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AuthService()),
+        ChangeNotifierProvider(
+            create: (context) =>
+                TasksRepository()), // Adiciona o TasksRepository
+      ],
       child: MyApp(),
     ),
   );
@@ -38,7 +45,7 @@ class MyApp extends StatelessWidget {
         primaryColor: AppColors.primaryWhiteColor,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const ListPage(),
+      home: AuthCheck(),
       routes: routes,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [
