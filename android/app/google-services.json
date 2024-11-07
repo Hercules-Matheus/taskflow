@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:348437523156:android:e1c4d955ebdae5079fa941",
+        "mobilesdk_app_id": "1:348437523156:android:837ef327134ad4069fa941",
         "android_client_info": {
-          "package_name": "com.company.taskflow"
+          "package_name": "com.example.taskflow"
         }
       },
       "oauth_client": [],
