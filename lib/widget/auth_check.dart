@@ -18,15 +18,15 @@ class _AuthCheckState extends State<AuthCheck> {
 
     if (auth.isLoading) {
       return loading();
-    } else if (auth.local_user == null)
-      return LoginPage();
+    } else if (auth.localUser == null)
+      return const LoginPage();
     else
-      return ListPage();
+      return const ListPage();
   }
 }
 
 loading() {
-  return Scaffold(
+  return const Scaffold(
     body: Center(
       child: CircularProgressIndicator(),
     ),

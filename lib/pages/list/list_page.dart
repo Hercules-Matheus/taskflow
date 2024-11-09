@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:taskflow/pages/task/task_page.dart';
 import 'package:taskflow/repository/list_repository.dart';
 import 'package:taskflow/repository/tasks_repository.dart';
+import 'package:taskflow/services/auth_service.dart';
 
 class ListPage extends StatefulWidget {
   static String tag = 'list_page';
@@ -24,11 +25,13 @@ class ListPage extends StatefulWidget {
 
 class ListPageState extends State<ListPage> {
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _editUsernameController = TextEditingController();
   late List<Lists> tasklist;
   List<Lists> filteredLists = [];
   late TasksRepository tasksRepository;
   final ScrollController _scrollController = ScrollController();
   int? highlightedListIndex;
+  String username = 'Insira seu nome';
 
   @override
   void initState() {
@@ -99,6 +102,70 @@ class ListPageState extends State<ListPage> {
     );
   }
 
+  void _showNameEditDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          actions: <Widget>[
+            const SizedBox(
+              height: 10,
+            ),
+            TextField(
+              controller: _editUsernameController,
+              cursorColor: AppColors.secondaryGreenColor,
+              decoration: InputDecoration(
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: AppColors.secondaryGreenColor,
+                  ),
+                ),
+                hintText: 'Digite seu nome',
+                hintStyle: const TextStyle(
+                  fontFamily: AppFonts.montserrat,
+                  fontSize: 14.0,
+                ),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Fecha o diálogo
+                  },
+                  icon: const Icon(Icons.close),
+                  color: AppColors.secondaryGreenColor,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              height: 40,
+              child: Row(
+                textDirection: TextDirection.ltr,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        username = _editUsernameController.text;
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      "Salvar",
+                      style: TextStyle(
+                        color: AppColors.secondaryGreenColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showSearchDialog() {
     const Spacer();
     showDialog(
@@ -107,7 +174,7 @@ class ListPageState extends State<ListPage> {
         return AlertDialog(
           actions: <Widget>[
             const SizedBox(
-              height: 20,
+              height: 10,
             ),
             TextField(
               controller: _searchController,
@@ -155,7 +222,7 @@ class ListPageState extends State<ListPage> {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         );
       },
@@ -581,6 +648,81 @@ class ListPageState extends State<ListPage> {
             ),
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: Container(
+          color: AppColors.primaryGreenColor,
+          child: ListView(
+            children: <Widget>[
+              UserAccountsDrawerHeader(
+                accountName: const SizedBox(
+                  height: 70,
+                  child: Text(
+                    'Seja bem vindo!',
+                    style: TextStyle(
+                      color: AppColors.primaryWhiteColor,
+                      fontFamily: AppFonts.montserrat,
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                accountEmail: Row(
+                  textDirection: TextDirection.ltr,
+                  children: <Widget>[
+                    Text(
+                      username,
+                      style: const TextStyle(
+                        color: AppColors.primaryWhiteColor,
+                        fontFamily: AppFonts.montserrat,
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () {
+                        _showNameEditDialog();
+                      },
+                      icon: const Icon(
+                        Icons.edit_outlined,
+                        color: AppColors.primaryWhiteColor,
+                        size: 24,
+                      ),
+                      splashColor: AppColors.secondaryGreenColor,
+                    )
+                  ],
+                ),
+                decoration: const BoxDecoration(
+                  color: AppColors.primaryGreenColor,
+                ),
+              ),
+              Card(
+                color: AppColors.tertiaryGreenColor,
+                child: ListTile(
+                  splashColor: AppColors.primaryRedColor,
+                  title: const Text(
+                    'Sair',
+                    style: TextStyle(
+                      fontFamily: AppFonts.montserrat,
+                      fontSize: 16.0,
+                      color: AppColors.primaryWhiteColor,
+                    ),
+                  ),
+                  leading: const Icon(
+                    Icons.logout,
+                    color: AppColors.primaryRedColor,
+                  ),
+                  onTap: () => setState(
+                    () {
+                      context.read<AuthService>().logout();
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
       body: body,
       backgroundColor: AppColors.primaryWhiteColor,
