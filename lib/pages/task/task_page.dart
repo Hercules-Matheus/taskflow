@@ -621,6 +621,7 @@ class TaskPageState extends State<TaskPage> {
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: AppColors.primaryGreenColor,
         toolbarHeight: 64,

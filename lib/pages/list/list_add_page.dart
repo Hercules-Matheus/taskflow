@@ -82,6 +82,7 @@ class ListAddPageState extends State<ListAddPage> {
       ),
     );
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: AppColors.primaryGreenColor,
       ),

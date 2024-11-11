@@ -11,6 +11,8 @@ import 'package:taskflow/pages/task/task_page.dart';
 import 'package:taskflow/repository/list_repository.dart';
 import 'package:taskflow/repository/tasks_repository.dart';
 import 'package:taskflow/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class ListPage extends StatefulWidget {
   static String tag = 'list_page';
@@ -26,12 +28,17 @@ class ListPage extends StatefulWidget {
 class ListPageState extends State<ListPage> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _editUsernameController = TextEditingController();
+  final GlobalKey _one = GlobalKey();
+  final GlobalKey _two = GlobalKey();
+  final GlobalKey _three = GlobalKey();
+  final GlobalKey _four = GlobalKey();
+  final GlobalKey _five = GlobalKey();
   late List<Lists> tasklist;
   List<Lists> filteredLists = [];
   late TasksRepository tasksRepository;
   final ScrollController _scrollController = ScrollController();
   int? highlightedListIndex;
-  String username = 'Insira seu nome';
+  String? username;
 
   @override
   void initState() {
@@ -441,179 +448,186 @@ class ListPageState extends State<ListPage> {
     //   ),
     // );
 
-    final body = Container(
-      color: AppColors.primaryWhiteColor,
-      width: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
-      child: Column(
-        textDirection: TextDirection.ltr,
-        children: <Widget>[
-          const Row(
-            textDirection: TextDirection.ltr,
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  'Listas',
-                  textDirection: TextDirection.ltr,
-                  style: TextStyle(
-                    color: AppColors.primaryBlackColor,
-                    fontFamily: AppFonts.montserrat,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 24.0,
+    final body = ShowCaseWidget(
+      builder: (context) => Container(
+        color: AppColors.primaryWhiteColor,
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
+        child: Column(
+          textDirection: TextDirection.ltr,
+          children: <Widget>[
+            const Row(
+              textDirection: TextDirection.ltr,
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    'Listas',
+                    textDirection: TextDirection.ltr,
+                    style: TextStyle(
+                      color: AppColors.primaryBlackColor,
+                      fontFamily: AppFonts.montserrat,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 24.0,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 560,
-            child: Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: filteredLists.length,
-                itemBuilder: (context, index) {
-                  bool isHighLighted = index == highlightedListIndex;
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TaskPage(
-                            taskListId: taskList[index].id,
+              ],
+            ),
+            SizedBox(
+              height: 560,
+              child: Expanded(
+                child: Showcase(
+                  key: _two,
+                  description: 'Aqui você visualizará suas listas',
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: filteredLists.length,
+                    itemBuilder: (context, index) {
+                      bool isHighLighted = index == highlightedListIndex;
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TaskPage(
+                                taskListId: taskList[index].id,
+                              ),
+                            ),
+                          );
+                          _clearSearch();
+                        },
+                        child: Card(
+                          color: AppColors.secondaryWhiteColor,
+                          shape: isHighLighted
+                              ? RoundedRectangleBorder(
+                                  side: const BorderSide(
+                                      color: AppColors.primaryGreenColor,
+                                      width: 2.0),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                )
+                              : RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                          child: SizedBox(
+                            height: 72,
+                            child: Container(
+                              alignment: Alignment.bottomLeft,
+                              child: ListTile(
+                                textColor: AppColors.primaryBlackColor,
+                                title: showListTitle(index),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    IconButton(
+                                      iconSize: 28,
+                                      onPressed: () {
+                                        _toggleCheckbox(index);
+                                      },
+                                      icon: Icon(
+                                        taskList[index].isChecked
+                                            ? Icons.check_box
+                                            : Icons.check_box_outline_blank,
+                                        color: AppColors.primaryGreenColor,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Deletar',
+                                      iconSize: 28,
+                                      onPressed: () {
+                                        _showDeleteConfirmationDialog(
+                                            context, index);
+                                      },
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: AppColors.primaryGreenColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       );
-                      _clearSearch();
                     },
-                    child: Card(
-                      color: AppColors.secondaryWhiteColor,
-                      shape: isHighLighted
-                          ? RoundedRectangleBorder(
-                              side: const BorderSide(
-                                  color: AppColors.primaryGreenColor,
-                                  width: 2.0),
-                              borderRadius: BorderRadius.circular(8.0),
-                            )
-                          : RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                      child: SizedBox(
-                        height: 72,
-                        child: Container(
-                          alignment: Alignment.bottomLeft,
-                          child: ListTile(
-                            textColor: AppColors.primaryBlackColor,
-                            title: showListTitle(index),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                IconButton(
-                                  iconSize: 28,
-                                  onPressed: () {
-                                    _toggleCheckbox(index);
-                                  },
-                                  icon: Icon(
-                                    taskList[index].isChecked
-                                        ? Icons.check_box
-                                        : Icons.check_box_outline_blank,
-                                    color: AppColors.primaryGreenColor,
-                                  ),
-                                ),
-                                IconButton(
-                                  tooltip: 'Deletar',
-                                  iconSize: 28,
-                                  onPressed: () {
-                                    _showDeleteConfirmationDialog(
-                                        context, index);
-                                  },
-                                  icon: const Icon(
-                                    Icons.delete_outline,
-                                    color: AppColors.primaryGreenColor,
-                                  ),
-                                ),
-                              ],
-                            ),
+                  ),
+                ),
+              ),
+            ),
+            const Spacer(),
+            Row(
+              textDirection: TextDirection.ltr,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ListAddPage(),
+                        ),
+                      );
+                    },
+                    label: const Text(
+                      'Nova Lista',
+                      style: TextStyle(
+                        color: AppColors.primaryWhiteColor,
+                      ),
+                    ),
+                    icon: const Icon(Icons.add),
+                    style: const ButtonStyle(
+                      elevation: WidgetStatePropertyAll(5.0),
+                      iconColor:
+                          WidgetStatePropertyAll(AppColors.primaryWhiteColor),
+                      backgroundColor:
+                          WidgetStatePropertyAll(AppColors.primaryGreenColor),
+                      padding: WidgetStatePropertyAll(EdgeInsets.all(16.0)),
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(16.0),
                           ),
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const Spacer(),
-          Row(
-            textDirection: TextDirection.ltr,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ListAddPage(),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _showSearchDialog();
+                    },
+                    style: const ButtonStyle(
+                      elevation: WidgetStatePropertyAll(5.0),
+                      backgroundColor:
+                          WidgetStatePropertyAll(AppColors.primaryGreenColor),
+                      padding: WidgetStatePropertyAll(EdgeInsets.all(16.0)),
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(16.0),
+                          ),
+                        ),
                       ),
-                    );
-                  },
-                  label: const Text(
-                    'Nova Lista',
-                    style: TextStyle(
+                    ),
+                    child: const Icon(
+                      Icons.search,
                       color: AppColors.primaryWhiteColor,
                     ),
                   ),
-                  icon: const Icon(Icons.add),
-                  style: const ButtonStyle(
-                    elevation: WidgetStatePropertyAll(5.0),
-                    iconColor:
-                        WidgetStatePropertyAll(AppColors.primaryWhiteColor),
-                    backgroundColor:
-                        WidgetStatePropertyAll(AppColors.primaryGreenColor),
-                    padding: WidgetStatePropertyAll(EdgeInsets.all(16.0)),
-                    shape: WidgetStatePropertyAll(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(16.0),
-                        ),
-                      ),
-                    ),
-                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _showSearchDialog();
-                  },
-                  style: const ButtonStyle(
-                    elevation: WidgetStatePropertyAll(5.0),
-                    backgroundColor:
-                        WidgetStatePropertyAll(AppColors.primaryGreenColor),
-                    padding: WidgetStatePropertyAll(EdgeInsets.all(16.0)),
-                    shape: WidgetStatePropertyAll(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(16.0),
-                        ),
-                      ),
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.search,
-                    color: AppColors.primaryWhiteColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         toolbarHeight: 64,
         backgroundColor: AppColors.primaryGreenColor,
@@ -671,7 +685,9 @@ class ListPageState extends State<ListPage> {
                   textDirection: TextDirection.ltr,
                   children: <Widget>[
                     Text(
-                      username,
+                      username?.isNotEmpty == true
+                          ? username!
+                          : 'Insira seu nome',
                       style: const TextStyle(
                         color: AppColors.primaryWhiteColor,
                         fontFamily: AppFonts.montserrat,
@@ -715,7 +731,9 @@ class ListPageState extends State<ListPage> {
                   ),
                   onTap: () => setState(
                     () {
-                      context.read<AuthService>().logout();
+                      Future.delayed(const Duration(milliseconds: 200), () {
+                        context.read<AuthService>().logout();
+                      });
                     },
                   ),
                 ),

@@ -89,6 +89,7 @@ class ListEditPageState extends State<ListEditPage> {
       ),
     );
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.primaryWhiteColor,
       appBar: AppBar(
         backgroundColor: AppColors.primaryGreenColor,

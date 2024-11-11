@@ -12,7 +12,20 @@
           "package_name": "com.example.taskflow"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "348437523156-mntaegv5n5k070dnjv5h837hgopq7f3d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.taskflow",
+            "certificate_hash": "d297ec99bd90f2130db9a1ba1c332aaa04f7af1e"
+          }
+        },
+        {
+          "client_id": "348437523156-igoel3ac34mtbpdu2rvjg3vmmdfke0kb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAGwtcIupi9q9P7ZPGEMI08dfrJmgEu07I"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "348437523156-igoel3ac34mtbpdu2rvjg3vmmdfke0kb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

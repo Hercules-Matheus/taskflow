@@ -95,6 +95,7 @@ class TaskAddPageState extends State<TaskAddPage> {
       ),
     );
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: AppColors.primaryGreenColor,
       ),

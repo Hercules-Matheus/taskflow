@@ -95,6 +95,7 @@ class TaskEditPageState extends State<TaskEditPage> {
       ),
     );
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.primaryWhiteColor,
       appBar: AppBar(
         backgroundColor: AppColors.primaryGreenColor,

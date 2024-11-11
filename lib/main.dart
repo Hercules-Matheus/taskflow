@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         primaryColor: AppColors.primaryWhiteColor,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: AuthCheck(),
+      home: const AuthCheck(),
       routes: routes,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       supportedLocales: const [

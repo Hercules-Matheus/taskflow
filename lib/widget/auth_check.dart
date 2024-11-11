@@ -5,23 +5,24 @@ import 'package:taskflow/services/auth_service.dart';
 import 'package:taskflow/pages/login/login_page.dart';
 
 class AuthCheck extends StatefulWidget {
-  AuthCheck({Key? key}) : super(key: key);
+  const AuthCheck({super.key});
 
   @override
-  _AuthCheckState createState() => _AuthCheckState();
+  AuthCheckState createState() => AuthCheckState();
 }
 
-class _AuthCheckState extends State<AuthCheck> {
+class AuthCheckState extends State<AuthCheck> {
   @override
   Widget build(BuildContext context) {
     AuthService auth = Provider.of<AuthService>(context);
 
     if (auth.isLoading) {
       return loading();
-    } else if (auth.localUser == null)
+    } else if (auth.localUser == null) {
       return const LoginPage();
-    else
+    } else {
       return const ListPage();
+    }
   }
 }
 
