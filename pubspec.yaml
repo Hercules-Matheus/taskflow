@@ -44,6 +44,7 @@ dependencies:
   marquee: ^2.3.0
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
+  cloud_firestore: ^5.4.5
   google_sign_in: ^6.2.1
   font_awesome_flutter: ^10.8.0
   shared_preferences: ^2.3.3

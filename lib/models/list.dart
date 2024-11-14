@@ -4,7 +4,7 @@ class Lists {
   final String id = const Uuid().v4();
   String name;
   String date;
-  bool isChecked;
+  String isChecked;
 
   Lists({
     required this.name,

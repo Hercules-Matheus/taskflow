@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:marquee/marquee.dart';
@@ -32,34 +34,119 @@ class ListPageState extends State<ListPage> {
   final GlobalKey _two = GlobalKey();
   final GlobalKey _three = GlobalKey();
   final GlobalKey _four = GlobalKey();
-  final GlobalKey _five = GlobalKey();
+
   late List<Lists> tasklist;
   List<Lists> filteredLists = [];
   late TasksRepository tasksRepository;
+  late ListRepository listRepository;
   final ScrollController _scrollController = ScrollController();
   int? highlightedListIndex;
-  String? username;
+  String? userName;
 
   @override
   void initState() {
     super.initState();
-    tasklist = ListRepository.getList();
+    _checkFirstAccess();
+    _loadUserNameWithRetry();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    tasklist = ListRepository.getList();
-    filteredLists = tasklist;
+    listRepository = Provider.of<ListRepository>(context);
     tasksRepository = Provider.of<TasksRepository>(context);
+
+    listRepository.addListener(_updateTaskList);
+    _updateTaskList();
+
     if (_searchController.text.isEmpty) {
       _clearSearch();
     }
   }
 
+  void _updateTaskList() {
+    setState(() {
+      tasklist = listRepository.getList();
+      filteredLists = tasklist;
+    });
+  }
+
+  @override
+  void dispose() {
+    listRepository.removeListener(_updateTaskList);
+    super.dispose();
+  }
+
+  Future<void> _loadUserNameWithRetry() async {
+    const retryDelay = Duration(seconds: 2);
+    int retryCount = 0;
+
+    while (true) {
+      try {
+        await _loadUserName();
+        break;
+      } on FirebaseException catch (e) {
+        if (e.code == 'cloud_firestore/unavailable' && retryCount < 5) {
+          retryCount++;
+          await Future.delayed(retryDelay);
+        } else {
+          rethrow;
+        }
+      }
+    }
+  }
+
+  Future<void> _checkFirstAccess() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasSeenShowcase = prefs.getBool('hasSeenShowcase') ?? false;
+
+    if (!hasSeenShowcase) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ShowCaseWidget.of(context).startShowCase([
+          _one,
+          _two,
+          _three,
+          _four,
+        ]);
+      });
+      await prefs.setBool('hasSeenShowcase', true);
+    }
+  }
+
+  Future<void> _loadUserName() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      if (userDoc.exists) {
+        setState(() {
+          userName = userDoc['userName'];
+        });
+      }
+    }
+  }
+
+  Future<void> _saveUserName() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'userName': _editUsernameController.text,
+      });
+      setState(() {
+        userName = _editUsernameController.text;
+      });
+    }
+  }
+
   void _toggleCheckbox(int index) {
     setState(() {
-      tasklist[index].isChecked = !tasklist[index].isChecked;
+      if (tasklist[index].isChecked == 'false') {
+        tasklist[index].isChecked = 'true';
+      } else if (tasklist[index].isChecked == 'true') {
+        tasklist[index].isChecked = 'false';
+      }
     });
   }
 
@@ -153,7 +240,7 @@ class ListPageState extends State<ListPage> {
                   TextButton(
                     onPressed: () {
                       setState(() {
-                        username = _editUsernameController.text;
+                        _saveUserName();
                       });
                       Navigator.of(context).pop();
                     },
@@ -448,119 +535,117 @@ class ListPageState extends State<ListPage> {
     //   ),
     // );
 
-    final body = ShowCaseWidget(
-      builder: (context) => Container(
-        color: AppColors.primaryWhiteColor,
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
-        child: Column(
-          textDirection: TextDirection.ltr,
-          children: <Widget>[
-            const Row(
-              textDirection: TextDirection.ltr,
-              children: <Widget>[
-                Expanded(
-                  child: Text(
-                    'Listas',
-                    textDirection: TextDirection.ltr,
-                    style: TextStyle(
-                      color: AppColors.primaryBlackColor,
-                      fontFamily: AppFonts.montserrat,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 24.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 560,
-              child: Expanded(
-                child: Showcase(
-                  key: _two,
-                  description: 'Aqui você visualizará suas listas',
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    itemCount: filteredLists.length,
-                    itemBuilder: (context, index) {
-                      bool isHighLighted = index == highlightedListIndex;
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TaskPage(
-                                taskListId: taskList[index].id,
-                              ),
-                            ),
-                          );
-                          _clearSearch();
-                        },
-                        child: Card(
-                          color: AppColors.secondaryWhiteColor,
-                          shape: isHighLighted
-                              ? RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                      color: AppColors.primaryGreenColor,
-                                      width: 2.0),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                )
-                              : RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                          child: SizedBox(
-                            height: 72,
-                            child: Container(
-                              alignment: Alignment.bottomLeft,
-                              child: ListTile(
-                                textColor: AppColors.primaryBlackColor,
-                                title: showListTitle(index),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    IconButton(
-                                      iconSize: 28,
-                                      onPressed: () {
-                                        _toggleCheckbox(index);
-                                      },
-                                      icon: Icon(
-                                        taskList[index].isChecked
-                                            ? Icons.check_box
-                                            : Icons.check_box_outline_blank,
-                                        color: AppColors.primaryGreenColor,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      tooltip: 'Deletar',
-                                      iconSize: 28,
-                                      onPressed: () {
-                                        _showDeleteConfirmationDialog(
-                                            context, index);
-                                      },
-                                      icon: const Icon(
-                                        Icons.delete_outline,
-                                        color: AppColors.primaryGreenColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+    final body = Container(
+      color: AppColors.primaryWhiteColor,
+      width: MediaQuery.of(context).size.width,
+      padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
+      child: Column(
+        textDirection: TextDirection.ltr,
+        children: <Widget>[
+          const Row(
+            textDirection: TextDirection.ltr,
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  'Listas',
+                  textDirection: TextDirection.ltr,
+                  style: TextStyle(
+                    color: AppColors.primaryBlackColor,
+                    fontFamily: AppFonts.montserrat,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 24.0,
                   ),
                 ),
               ),
+            ],
+          ),
+          SizedBox(
+            height: 560,
+            child: Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: filteredLists.length,
+                itemBuilder: (context, index) {
+                  bool isHighLighted = index == highlightedListIndex;
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TaskPage(
+                            taskListId: taskList[index].id,
+                          ),
+                        ),
+                      );
+                      _clearSearch();
+                    },
+                    child: Card(
+                      color: AppColors.secondaryWhiteColor,
+                      shape: isHighLighted
+                          ? RoundedRectangleBorder(
+                              side: const BorderSide(
+                                  color: AppColors.primaryGreenColor,
+                                  width: 2.0),
+                              borderRadius: BorderRadius.circular(8.0),
+                            )
+                          : RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                      child: SizedBox(
+                        height: 72,
+                        child: Container(
+                          alignment: Alignment.bottomLeft,
+                          child: ListTile(
+                            textColor: AppColors.primaryBlackColor,
+                            title: showListTitle(index),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  iconSize: 28,
+                                  onPressed: () {
+                                    _toggleCheckbox(index);
+                                  },
+                                  icon: Icon(
+                                    taskList[index].isChecked == 'true'
+                                        ? Icons.check_box
+                                        : Icons.check_box_outline_blank,
+                                    color: AppColors.primaryGreenColor,
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: 'Deletar',
+                                  iconSize: 28,
+                                  onPressed: () {
+                                    _showDeleteConfirmationDialog(
+                                        context, index);
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    color: AppColors.primaryGreenColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-            const Spacer(),
-            Row(
-              textDirection: TextDirection.ltr,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.only(bottom: 20.0),
+          ),
+          const Spacer(),
+          Row(
+            textDirection: TextDirection.ltr,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Showcase(
+                  key: _three,
+                  description: 'Clique para adicionar uma lista',
                   child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
@@ -594,8 +679,12 @@ class ListPageState extends State<ListPage> {
                     ),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.only(bottom: 20.0),
+              ),
+              Container(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Showcase(
+                  key: _four,
+                  description: 'Clique para buscar uma lista',
                   child: ElevatedButton(
                     onPressed: () {
                       _showSearchDialog();
@@ -619,10 +708,10 @@ class ListPageState extends State<ListPage> {
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
 
@@ -633,14 +722,18 @@ class ListPageState extends State<ListPage> {
         backgroundColor: AppColors.primaryGreenColor,
         leading: Builder(
           builder: (context) {
-            return IconButton(
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-              icon: const Icon(
-                Icons.menu,
-                size: 30,
-                color: AppColors.primaryWhiteColor,
+            return Showcase(
+              key: _one,
+              description: 'Clique para abrir o menu lateral',
+              child: IconButton(
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                icon: const Icon(
+                  Icons.menu,
+                  size: 30,
+                  color: AppColors.primaryWhiteColor,
+                ),
               ),
             );
           },
@@ -651,14 +744,18 @@ class ListPageState extends State<ListPage> {
           width: 100,
           height: 54,
         ),
-        actions: const <Widget>[
+        actions: <Widget>[
           Padding(
-            padding: EdgeInsets.only(right: 12.0),
-            child: CircleAvatar(
-              radius: 16.0,
-              backgroundImage:
-                  AssetImage('lib/assets/images/generic-avatar.png'),
-              backgroundColor: Colors.transparent,
+            padding: const EdgeInsets.only(right: 12.0),
+            child: Showcase(
+              key: _two,
+              description: 'Clique para adicionar sua foto',
+              child: const CircleAvatar(
+                radius: 16.0,
+                backgroundImage:
+                    AssetImage('lib/assets/images/generic-avatar.png'),
+                backgroundColor: Colors.transparent,
+              ),
             ),
           ),
         ],
@@ -685,8 +782,8 @@ class ListPageState extends State<ListPage> {
                   textDirection: TextDirection.ltr,
                   children: <Widget>[
                     Text(
-                      username?.isNotEmpty == true
-                          ? username!
+                      userName?.isNotEmpty == true
+                          ? userName!
                           : 'Insira seu nome',
                       style: const TextStyle(
                         color: AppColors.primaryWhiteColor,

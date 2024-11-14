@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
@@ -24,13 +25,14 @@ class ListAddPageState extends State<ListAddPage> {
   final TextEditingController _listNameController = TextEditingController();
   final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
+  late ListRepository listRepository;
 
   void _addList() {
     // Adiciona a nova lista ao repositório
-    ListRepository.addList(Lists(
+    listRepository.addList(Lists(
         name: _listNameController.text,
         date: _dateController.text,
-        isChecked: false));
+        isChecked: 'false'));
 
     // Limpa os campos de texto
     _listNameController.clear();
@@ -41,6 +43,12 @@ class ListAddPageState extends State<ListAddPage> {
   void initState() {
     super.initState();
     initializeDateFormatting('pt_BR', null);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    listRepository = Provider.of<ListRepository>(context);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -54,7 +62,7 @@ class ListAddPageState extends State<ListAddPage> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.tertiaryGreenColor,
+              primary: AppColors.primaryGreenColor,
               onPrimary: AppColors.secondaryWhiteColor,
               surface: AppColors.secondaryWhiteColor,
               onSurface: AppColors.primaryGreenColor,

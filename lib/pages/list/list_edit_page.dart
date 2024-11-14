@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
@@ -29,15 +30,16 @@ class ListEditPageState extends State<ListEditPage> {
   final TextEditingController _listNameController = TextEditingController();
   final GlobalKey<FormState> _formNameKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formDateKey = GlobalKey<FormState>();
+  late ListRepository listRepository;
 
   void _editList(String id) {
-    Lists updatedList = ListRepository.findListById(id);
+    Lists updatedList = listRepository.findListById(id);
     setState(() {
       updatedList.name = _listNameController.text;
       updatedList.date = _dateController.text;
-      updatedList.isChecked = false;
+      updatedList.isChecked = 'false';
     });
-    ListRepository.updateList(updatedList);
+    listRepository.updateList(updatedList);
 
     // Limpa os campos de texto
     _listNameController.clear();
@@ -48,6 +50,12 @@ class ListEditPageState extends State<ListEditPage> {
   void initState() {
     super.initState();
     initializeDateFormatting('pt_BR', null);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    listRepository = Provider.of<ListRepository>(context);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -61,7 +69,7 @@ class ListEditPageState extends State<ListEditPage> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.tertiaryGreenColor,
+              primary: AppColors.primaryGreenColor,
               onPrimary: AppColors.secondaryWhiteColor,
               surface: AppColors.secondaryWhiteColor,
               onSurface: AppColors.primaryGreenColor,
@@ -185,10 +193,9 @@ class ListEditPageState extends State<ListEditPage> {
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     setState(() {
-                                      _listNameController.text =
-                                          ListRepository.findListById(
-                                                  widget.taskListId)
-                                              .name;
+                                      _listNameController.text = listRepository
+                                          .findListById(widget.taskListId)
+                                          .name;
                                     });
                                     return null;
                                   }
@@ -244,10 +251,9 @@ class ListEditPageState extends State<ListEditPage> {
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     setState(() {
-                                      _dateController.text =
-                                          ListRepository.findListById(
-                                                  widget.taskListId)
-                                              .date;
+                                      _dateController.text = listRepository
+                                          .findListById(widget.taskListId)
+                                          .date;
                                     });
                                     return null;
                                   }

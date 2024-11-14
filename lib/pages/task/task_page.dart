@@ -29,6 +29,7 @@ class TaskPageState extends State<TaskPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Tasks> filteredTasks = [];
   late TasksRepository tasksRepository;
+  late ListRepository listRepository;
   final ScrollController _scrollController = ScrollController();
   int? highlightedTaskIndex;
 
@@ -41,6 +42,7 @@ class TaskPageState extends State<TaskPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     tasksRepository = Provider.of<TasksRepository>(context);
+    listRepository = Provider.of<ListRepository>(context);
     _updateTasksList();
     if (_searchController.text.isEmpty) {
       _clearSearch();
@@ -213,7 +215,7 @@ class TaskPageState extends State<TaskPage> {
   }
 
   showListTitle() {
-    String appBarTitle = ListRepository.findListById(widget.taskListId).name;
+    String appBarTitle = listRepository.findListById(widget.taskListId).name;
     if (appBarTitle.length > 24) {
       return Row(
         textDirection: TextDirection.ltr,
