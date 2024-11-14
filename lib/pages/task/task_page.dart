@@ -271,11 +271,13 @@ class TaskPageState extends State<TaskPage> {
   }
 
   void _toggleCheckbox(int index) {
-    setState(
-      () {
-        tasks[index].isChecked = !tasks[index].isChecked;
-      },
-    );
+    setState(() {
+      if (tasks[index].isChecked == 'false') {
+        tasks[index].isChecked = 'true';
+      } else if (tasks[index].isChecked == 'true') {
+        tasks[index].isChecked = 'false';
+      }
+    });
   }
 
   void _showSearchDialog() {
@@ -517,7 +519,7 @@ class TaskPageState extends State<TaskPage> {
                                       _toggleCheckbox(index);
                                     },
                                     icon: Icon(
-                                      filteredTasks[index].isChecked
+                                      filteredTasks[index].isChecked == 'true'
                                           ? Icons.radio_button_checked
                                           : Icons.radio_button_unchecked,
                                       color: AppColors.primaryGreenColor,

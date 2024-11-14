@@ -178,7 +178,8 @@ class ListPageState extends State<ListPage> {
               onPressed: () {
                 // Primeira verificacao para garantir que a tarefa existe
                 if (tasklist.isNotEmpty && index < tasklist.length) {
-                  tasklist.removeAt(index);
+                  listRepository.removeList(tasklist[index]);
+                  // tasklist.removeAt(index);
                   setState(() {});
                 }
                 Navigator.of(context).pop(); // Fecha o diálogo

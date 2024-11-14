@@ -11,11 +11,11 @@ class ListRepository extends ChangeNotifier {
 
   ListRepository({required this.auth}) {
     _startRepository();
-    _loadInitialData();
   }
 
-  _startRepository() async {
+  Future<void> _startRepository() async {
     await _startFirestore();
+    await _loadInitialData(); // Carregue os dados aqui
   }
 
   _startFirestore() {
@@ -28,18 +28,23 @@ class ListRepository extends ChangeNotifier {
           await db.collection('users/${auth.localUser!.uid}/lists').get();
       tableList = snapshot.docs.map((doc) {
         return Lists(
+          id: doc.id, // Usar ID do documento do Firestore
           name: doc['listname'],
           date: doc['listdate'],
-          isChecked: doc['listbool'],
+          isChecked: doc['listbool'].toString(),
         );
       }).toList();
       notifyListeners();
     }
   }
 
-  void addList(Lists tasklist) {
+  void addList(Lists tasklist) async {
     tableList.add(tasklist);
-    db.collection('users/${auth.localUser!.uid}/lists').doc(tasklist.id).set({
+    await db
+        .collection('users/${auth.localUser!.uid}/lists')
+        .doc(tasklist.id)
+        .set({
+      'listid': tasklist.id,
       'listname': tasklist.name,
       'listdate': tasklist.date,
       'listbool': tasklist.isChecked
@@ -47,26 +52,46 @@ class ListRepository extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removeList(Lists tasklist) async {
+    debugPrint('on removeList');
+    try {
+      await db
+          .collection('users/${auth.localUser!.uid}/lists')
+          .doc(tasklist.id)
+          .delete();
+      tableList.remove(tasklist);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Erro ao remover lista: $e');
+    }
+  }
+
+  void updateList(Lists tasklist) async {
+    debugPrint('on updateList');
+    try {
+      int index = tableList.indexWhere((t) => t.id == tasklist.id);
+      if (index != -1) {
+        tableList[index] = tasklist;
+        await db
+            .collection('users/${auth.localUser!.uid}/lists')
+            .doc(tasklist.id)
+            .update({
+          'listid': tasklist.id,
+          'listname': tasklist.name,
+          'listdate': tasklist.date,
+          'listbool': tasklist.isChecked
+        });
+        notifyListeners();
+      } else {
+        debugPrint('Lista não encontrada: ${tasklist.id}');
+      }
+    } catch (e) {
+      debugPrint('Erro ao atualizar lista: $e');
+    }
+  }
+
   List<Lists> getList() {
     return tableList;
-  }
-
-  void removeList(Lists tasklist) async {
-    await db
-        .collection('users/${auth.localUser!.uid}/lists')
-        .doc(tasklist.id)
-        .delete();
-
-    tableList.remove(tasklist);
-    notifyListeners();
-  }
-
-  void updateList(Lists tasklist) {
-    int index = tableList.indexWhere((t) => t.id == tasklist.id);
-    if (index != -1) {
-      tableList[index] = tasklist;
-    }
-    notifyListeners();
   }
 
   Lists findListById(String id) {

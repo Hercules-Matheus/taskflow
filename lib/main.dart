@@ -44,6 +44,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShowCaseWidget(
+      blurValue: 1,
+      autoPlayDelay: const Duration(seconds: 2),
       builder: (context) => MaterialApp(
         title: 'TaskFlow',
         color: AppColors.primaryWhiteColor,
