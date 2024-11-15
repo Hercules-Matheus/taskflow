@@ -15,9 +15,9 @@ import 'package:taskflow/repository/tasks_repository.dart';
 class TaskPage extends StatefulWidget {
   static String tag = 'task_page';
 
-  final String taskListId;
+  final String listId;
 
-  const TaskPage({super.key, required this.taskListId});
+  const TaskPage({super.key, required this.listId});
 
   @override
   TaskPageState createState() => TaskPageState();
@@ -41,12 +41,27 @@ class TaskPageState extends State<TaskPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    tasksRepository = Provider.of<TasksRepository>(context);
     listRepository = Provider.of<ListRepository>(context);
+    tasksRepository = Provider.of<TasksRepository>(context);
+    tasksRepository.addListener(_updateTasksList);
     _updateTasksList();
     if (_searchController.text.isEmpty) {
       _clearSearch();
     }
+  }
+
+  void _updateTasksList() {
+    setState(() {
+      tasks = tasksRepository.getTasks();
+      filteredTasks = tasks;
+    });
+    debugPrint('on updateTaskList');
+  }
+
+  @override
+  void dispose() {
+    tasksRepository.removeListener(_updateTasksList);
+    super.dispose();
   }
 
   showTaskTitle(index) {
@@ -215,7 +230,7 @@ class TaskPageState extends State<TaskPage> {
   }
 
   showListTitle() {
-    String appBarTitle = listRepository.findListById(widget.taskListId).name;
+    String appBarTitle = listRepository.findListById(widget.listId).name;
     if (appBarTitle.length > 24) {
       return Row(
         textDirection: TextDirection.ltr,
@@ -271,6 +286,7 @@ class TaskPageState extends State<TaskPage> {
   }
 
   void _toggleCheckbox(int index) {
+    debugPrint(tasks[index].isChecked);
     setState(() {
       if (tasks[index].isChecked == 'false') {
         tasks[index].isChecked = 'true';
@@ -278,6 +294,7 @@ class TaskPageState extends State<TaskPage> {
         tasks[index].isChecked = 'false';
       }
     });
+    debugPrint(tasks[index].isChecked);
   }
 
   void _showSearchDialog() {
@@ -343,14 +360,6 @@ class TaskPageState extends State<TaskPage> {
     );
   }
 
-  void _updateTasksList() {
-    setState(() {
-      // Atualiza a lista `filteredTasks` após mudanças
-      tasks = tasksRepository.getTasks(widget.taskListId);
-      filteredTasks = tasks;
-    });
-  }
-
   void _scrollToTask(String query) {
     int index = tasks.indexWhere(
       (task) => task.name.toLowerCase().contains(
@@ -380,7 +389,7 @@ class TaskPageState extends State<TaskPage> {
   }
 
   void sortByAlpha() {
-    tasksRepository.sortByName(widget.taskListId);
+    tasksRepository.sortByName(widget.listId);
     setState(() {
       _updateTasksList();
     });
@@ -391,7 +400,7 @@ class TaskPageState extends State<TaskPage> {
       context,
       MaterialPageRoute(
         builder: (context) => ListEditPage(
-          taskListId: widget.taskListId,
+          listId: widget.listId,
         ),
       ),
     ).then((_) {
@@ -429,9 +438,8 @@ class TaskPageState extends State<TaskPage> {
               onPressed: () {
                 // Primeira verificacao para garantir que a tarefa existe
                 if (tasks.isNotEmpty && index < tasks.length) {
-                  tasksRepository.removeTask(tasks[index]);
                   setState(() {
-                    tasks.removeAt(index);
+                    tasksRepository.removeTask(tasks[index]);
                   });
                 }
                 Navigator.of(context).pop(); // Fecha o diálogo
@@ -549,8 +557,11 @@ class TaskPageState extends State<TaskPage> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
-                                                  TaskEditPage(
-                                                taskId: tasks[index].id,
+                                                  ChangeNotifierProvider.value(
+                                                value: tasksRepository,
+                                                child: TaskEditPage(
+                                                  taskId: tasks[index].id,
+                                                ),
                                               ),
                                             ),
                                           );
@@ -586,8 +597,11 @@ class TaskPageState extends State<TaskPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TaskAddPage(
-                          taskListId: widget.taskListId,
+                        builder: (context) => ChangeNotifierProvider.value(
+                          value: tasksRepository,
+                          child: TaskAddPage(
+                            listId: widget.listId,
+                          ),
                         ),
                       ),
                     ).then((_) {
@@ -643,7 +657,7 @@ class TaskPageState extends State<TaskPage> {
         title: showListTitle(),
       ),
       floatingActionButton: FabMenuButton(
-        taskListId: widget.taskListId,
+        listId: widget.listId,
         onSortByAlpha: sortByAlpha,
         onListEdit: listEdit,
         onSearch: _showSearchDialog,

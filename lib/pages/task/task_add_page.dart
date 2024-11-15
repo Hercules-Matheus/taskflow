@@ -12,9 +12,9 @@ import 'package:taskflow/repository/tasks_repository.dart';
 
 class TaskAddPage extends StatefulWidget {
   static String tag = 'task_add_page';
-  final String taskListId;
+  final String listId;
 
-  const TaskAddPage({super.key, required this.taskListId});
+  const TaskAddPage({super.key, required this.listId});
 
   @override
   TaskAddPageState createState() => TaskAddPageState();
@@ -40,8 +40,8 @@ class TaskAddPageState extends State<TaskAddPage> {
       Tasks(
         name: _taskNameController.text,
         date: _dateController.text,
-        isChecked: false,
-        taskListId: widget.taskListId,
+        isChecked: 'false',
+        listId: widget.listId,
       ),
     );
 
@@ -67,7 +67,7 @@ class TaskAddPageState extends State<TaskAddPage> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.tertiaryGreenColor,
+              primary: AppColors.primaryGreenColor,
               onPrimary: AppColors.secondaryWhiteColor,
               surface: AppColors.secondaryWhiteColor,
               onSurface: AppColors.primaryGreenColor,

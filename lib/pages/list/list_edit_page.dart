@@ -13,11 +13,11 @@ import 'package:taskflow/repository/list_repository.dart';
 
 class ListEditPage extends StatefulWidget {
   static String tag = 'list_edit_page';
-  final String taskListId;
+  final String listId;
 
   const ListEditPage({
     super.key,
-    required this.taskListId,
+    required this.listId,
   });
 
   @override
@@ -194,7 +194,7 @@ class ListEditPageState extends State<ListEditPage> {
                                   if (value == null || value.trim().isEmpty) {
                                     setState(() {
                                       _listNameController.text = listRepository
-                                          .findListById(widget.taskListId)
+                                          .findListById(widget.listId)
                                           .name;
                                     });
                                     return null;
@@ -252,7 +252,7 @@ class ListEditPageState extends State<ListEditPage> {
                                   if (value == null || value.trim().isEmpty) {
                                     setState(() {
                                       _dateController.text = listRepository
-                                          .findListById(widget.taskListId)
+                                          .findListById(widget.listId)
                                           .date;
                                     });
                                     return null;
@@ -325,7 +325,7 @@ class ListEditPageState extends State<ListEditPage> {
                           onPressed: () {
                             if (_formNameKey.currentState!.validate() &&
                                 _formDateKey.currentState!.validate()) {
-                              _editList(widget.taskListId);
+                              _editList(widget.listId);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Lista alterada'),
@@ -338,7 +338,7 @@ class ListEditPageState extends State<ListEditPage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => TaskPage(
-                                      taskListId: widget.taskListId,
+                                      listId: widget.listId,
                                     ),
                                   ),
                                 );

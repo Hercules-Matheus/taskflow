@@ -6,7 +6,6 @@ import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/pages/list/list_page.dart';
 import 'package:provider/provider.dart';
 import 'package:taskflow/repository/list_repository.dart';
-import 'package:taskflow/repository/tasks_repository.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:taskflow/services/auth_service.dart';
 import 'package:taskflow/widget/auth_check.dart';
@@ -22,7 +21,6 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthService()),
-        ChangeNotifierProvider(create: (context) => TasksRepository()),
         ChangeNotifierProvider(
           create: (context) => ListRepository(
             auth: context.read<AuthService>(),

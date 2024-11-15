@@ -37,7 +37,6 @@ class ListPageState extends State<ListPage> {
 
   late List<Lists> tasklist;
   List<Lists> filteredLists = [];
-  late TasksRepository tasksRepository;
   late ListRepository listRepository;
   final ScrollController _scrollController = ScrollController();
   int? highlightedListIndex;
@@ -54,11 +53,8 @@ class ListPageState extends State<ListPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     listRepository = Provider.of<ListRepository>(context);
-    tasksRepository = Provider.of<TasksRepository>(context);
-
     listRepository.addListener(_updateTaskList);
     _updateTaskList();
-
     if (_searchController.text.isEmpty) {
       _clearSearch();
     }
@@ -573,8 +569,15 @@ class ListPageState extends State<ListPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => TaskPage(
-                            taskListId: taskList[index].id,
+                          builder: (context) => ChangeNotifierProvider(
+                            create: (_) => TasksRepository(
+                              auth: Provider.of<AuthService>(context,
+                                  listen: false),
+                              listId: taskList[index].id,
+                            ),
+                            child: TaskPage(
+                              listId: taskList[index].id,
+                            ),
                           ),
                         ),
                       );

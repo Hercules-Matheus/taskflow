@@ -47,7 +47,7 @@ class TaskEditPageState extends State<TaskEditPage> {
     setState(() {
       updatedTask.name = _taskNameController.text;
       updatedTask.date = _dateController.text;
-      updatedTask.isChecked = false;
+      updatedTask.isChecked = 'false';
     });
     tasksRepository.updateTask(updatedTask);
 
@@ -67,7 +67,7 @@ class TaskEditPageState extends State<TaskEditPage> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.tertiaryGreenColor,
+              primary: AppColors.primaryGreenColor,
               onPrimary: AppColors.secondaryWhiteColor,
               surface: AppColors.secondaryWhiteColor,
               onSurface: AppColors.primaryGreenColor,

@@ -41,7 +41,7 @@ class TasksRepository extends ChangeNotifier {
         }).toList();
         notifyListeners();
       } catch (e) {
-        print("Erro ao carregar tarefas: $e");
+        debugPrint("Erro ao carregar tarefas: $e");
       }
     }
   }
@@ -61,11 +61,12 @@ class TasksRepository extends ChangeNotifier {
       });
       notifyListeners(); // Notifica que a lista foi alterada
     } catch (e) {
-      print("Erro ao adicionar tarefa: $e");
+      debugPrint("Erro ao adicionar tarefa: $e");
     }
   }
 
   List<Tasks> getTasks() {
+    // Filtra as tarefas pelo taskListId
     return tableTask;
   }
 
@@ -78,7 +79,7 @@ class TasksRepository extends ChangeNotifier {
           .delete();
       notifyListeners(); // Notifica que a lista foi alterada
     } catch (e) {
-      print("Erro ao remover tarefa: $e");
+      debugPrint("Erro ao remover tarefa: $e");
     }
   }
 
@@ -98,7 +99,7 @@ class TasksRepository extends ChangeNotifier {
         });
         notifyListeners(); // Notifica que a lista foi alterada
       } catch (e) {
-        print("Erro ao atualizar tarefa: $e");
+        debugPrint("Erro ao atualizar tarefa: $e");
       }
     }
   }
