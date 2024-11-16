@@ -84,10 +84,12 @@ class TaskPageState extends State<TaskPage> {
                   width: 165,
                   child: Marquee(
                     text: filteredTasks[index].name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppFonts.poppins,
                       fontSize: 16.0,
-                      color: AppColors.primaryBlackColor,
+                      color: tasks[index].isChecked == 'true'
+                          ? AppColors.primaryWhiteColor
+                          : AppColors.primaryBlackColor,
                     ),
                     scrollAxis: Axis.horizontal,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,10 +110,12 @@ class TaskPageState extends State<TaskPage> {
               children: <Widget>[
                 Text(
                   filteredTasks[index].date,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 12.0,
-                    color: AppColors.primaryBlackColor,
+                    color: tasks[index].isChecked == 'true'
+                        ? AppColors.primaryWhiteColor
+                        : AppColors.primaryBlackColor,
                   ),
                 )
               ],
@@ -138,10 +142,12 @@ class TaskPageState extends State<TaskPage> {
                   width: 165,
                   child: Marquee(
                     text: filteredTasks[index].name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppFonts.poppins,
                       fontSize: 16.0,
-                      color: AppColors.primaryBlackColor,
+                      color: tasks[index].isChecked == 'true'
+                          ? AppColors.primaryWhiteColor
+                          : AppColors.primaryBlackColor,
                     ),
                     scrollAxis: Axis.horizontal,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,10 +181,12 @@ class TaskPageState extends State<TaskPage> {
               children: <Widget>[
                 Text(
                   filteredTasks[index].name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 16.0,
-                    color: AppColors.primaryBlackColor,
+                    color: tasks[index].isChecked == 'true'
+                        ? AppColors.primaryWhiteColor
+                        : AppColors.primaryBlackColor,
                   ),
                 ),
               ],
@@ -189,10 +197,12 @@ class TaskPageState extends State<TaskPage> {
               children: <Widget>[
                 Text(
                   filteredTasks[index].date,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 12.0,
-                    color: AppColors.primaryBlackColor,
+                    color: tasks[index].isChecked == 'true'
+                        ? AppColors.primaryWhiteColor
+                        : AppColors.primaryBlackColor,
                   ),
                 )
               ],
@@ -215,10 +225,12 @@ class TaskPageState extends State<TaskPage> {
               children: <Widget>[
                 Text(
                   filteredTasks[index].name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 16.0,
-                    color: AppColors.primaryBlackColor,
+                    color: tasks[index].isChecked == 'true'
+                        ? AppColors.primaryWhiteColor
+                        : AppColors.primaryBlackColor,
                   ),
                 ),
               ],
@@ -502,7 +514,9 @@ class TaskPageState extends State<TaskPage> {
                     itemBuilder: (context, index) {
                       bool isHighLighted = index == highlightedTaskIndex;
                       return Card(
-                        color: AppColors.secondaryWhiteColor,
+                        color: tasks[index].isChecked == 'false'
+                            ? AppColors.primaryWhiteColor
+                            : AppColors.primaryGreenColor,
                         shape: isHighLighted
                             ? RoundedRectangleBorder(
                                 side: const BorderSide(
@@ -524,13 +538,21 @@ class TaskPageState extends State<TaskPage> {
                                     alignment: Alignment.center,
                                     iconSize: 28,
                                     onPressed: () {
-                                      _toggleCheckbox(index);
+                                      setState(() {
+                                        _toggleCheckbox(index);
+                                        tasksRepository.updateTaskBool(
+                                          tasks[index].id,
+                                          tasks[index].isChecked,
+                                        );
+                                      });
                                     },
                                     icon: Icon(
                                       filteredTasks[index].isChecked == 'true'
                                           ? Icons.radio_button_checked
                                           : Icons.radio_button_unchecked,
-                                      color: AppColors.primaryGreenColor,
+                                      color: tasks[index].isChecked == 'false'
+                                          ? AppColors.primaryGreenColor
+                                          : AppColors.primaryWhiteColor,
                                     ),
                                   ),
                                   title: showTaskTitle(index),
@@ -544,9 +566,12 @@ class TaskPageState extends State<TaskPage> {
                                           _showDeleteConfirmationDialog(
                                               context, index);
                                         },
-                                        icon: const Icon(
+                                        icon: Icon(
                                           Icons.delete_outline,
-                                          color: AppColors.primaryGreenColor,
+                                          color:
+                                              tasks[index].isChecked == 'false'
+                                                  ? AppColors.primaryGreenColor
+                                                  : AppColors.primaryWhiteColor,
                                         ),
                                       ),
                                       IconButton(
@@ -566,9 +591,12 @@ class TaskPageState extends State<TaskPage> {
                                             ),
                                           );
                                         },
-                                        icon: const Icon(
+                                        icon: Icon(
                                           Icons.edit_outlined,
-                                          color: AppColors.primaryGreenColor,
+                                          color:
+                                              tasks[index].isChecked == 'false'
+                                                  ? AppColors.primaryGreenColor
+                                                  : AppColors.primaryWhiteColor,
                                         ),
                                       ),
                                     ],

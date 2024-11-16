@@ -90,6 +90,25 @@ class ListRepository extends ChangeNotifier {
     }
   }
 
+  Future<void> updateListBool(String listId, String newListBool) async {
+    try {
+      await db
+          .collection('users/${auth.localUser!.uid}/lists')
+          .doc(listId)
+          .update({
+        'listbool': newListBool,
+      });
+      // Atualizar o estado local da lista de tarefas
+      int index = tableList.indexWhere((tasklist) => tasklist.id == listId);
+      if (index != -1) {
+        tableList[index].isChecked = newListBool;
+        notifyListeners(); // Notifica que a lista foi alterada
+      }
+    } catch (e) {
+      debugPrint("Erro ao atualizar campo listbool: $e");
+    }
+  }
+
   List<Lists> getList() {
     return tableList;
   }

@@ -359,10 +359,12 @@ class ListPageState extends State<ListPage> {
                   width: 230,
                   child: Marquee(
                     text: filteredLists[index].name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppFonts.poppins,
                       fontSize: 16.0,
-                      color: AppColors.primaryBlackColor,
+                      color: tasklist[index].isChecked == 'false'
+                          ? AppColors.primaryBlackColor
+                          : AppColors.primaryWhiteColor,
                     ),
                     scrollAxis: Axis.horizontal,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -383,10 +385,12 @@ class ListPageState extends State<ListPage> {
               children: <Widget>[
                 Text(
                   filteredLists[index].date,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 12.0,
-                    color: AppColors.primaryBlackColor,
+                    color: tasklist[index].isChecked == 'false'
+                        ? AppColors.primaryBlackColor
+                        : AppColors.primaryWhiteColor,
                   ),
                 )
               ],
@@ -413,10 +417,12 @@ class ListPageState extends State<ListPage> {
                   width: 230,
                   child: Marquee(
                     text: filteredLists[index].name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppFonts.poppins,
                       fontSize: 16.0,
-                      color: AppColors.primaryBlackColor,
+                      color: tasklist[index].isChecked == 'false'
+                          ? AppColors.primaryBlackColor
+                          : AppColors.primaryWhiteColor,
                     ),
                     scrollAxis: Axis.horizontal,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -450,10 +456,12 @@ class ListPageState extends State<ListPage> {
               children: <Widget>[
                 Text(
                   filteredLists[index].name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 16.0,
-                    color: AppColors.primaryBlackColor,
+                    color: tasklist[index].isChecked == 'false'
+                        ? AppColors.primaryBlackColor
+                        : AppColors.primaryWhiteColor,
                   ),
                 ),
               ],
@@ -464,10 +472,12 @@ class ListPageState extends State<ListPage> {
               children: <Widget>[
                 Text(
                   filteredLists[index].date,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 12.0,
-                    color: AppColors.primaryBlackColor,
+                    color: tasklist[index].isChecked == 'false'
+                        ? AppColors.primaryBlackColor
+                        : AppColors.primaryWhiteColor,
                   ),
                 )
               ],
@@ -490,10 +500,12 @@ class ListPageState extends State<ListPage> {
               children: <Widget>[
                 Text(
                   filteredLists[index].name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 16.0,
-                    color: AppColors.primaryBlackColor,
+                    color: tasklist[index].isChecked == 'false'
+                        ? AppColors.primaryBlackColor
+                        : AppColors.primaryWhiteColor,
                   ),
                 ),
               ],
@@ -515,8 +527,6 @@ class ListPageState extends State<ListPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Lists> taskList = tasklist;
-
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         systemNavigationBarColor: AppColors.primaryWhiteColor,
@@ -573,10 +583,10 @@ class ListPageState extends State<ListPage> {
                             create: (_) => TasksRepository(
                               auth: Provider.of<AuthService>(context,
                                   listen: false),
-                              listId: taskList[index].id,
+                              listId: tasklist[index].id,
                             ),
                             child: TaskPage(
-                              listId: taskList[index].id,
+                              listId: tasklist[index].id,
                             ),
                           ),
                         ),
@@ -584,7 +594,9 @@ class ListPageState extends State<ListPage> {
                       _clearSearch();
                     },
                     child: Card(
-                      color: AppColors.secondaryWhiteColor,
+                      color: tasklist[index].isChecked == 'false'
+                          ? AppColors.secondaryWhiteColor
+                          : AppColors.primaryGreenColor,
                       shape: isHighLighted
                           ? RoundedRectangleBorder(
                               side: const BorderSide(
@@ -600,7 +612,6 @@ class ListPageState extends State<ListPage> {
                         child: Container(
                           alignment: Alignment.bottomLeft,
                           child: ListTile(
-                            textColor: AppColors.primaryBlackColor,
                             title: showListTitle(index),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -609,12 +620,18 @@ class ListPageState extends State<ListPage> {
                                   iconSize: 28,
                                   onPressed: () {
                                     _toggleCheckbox(index);
+                                    listRepository.updateListBool(
+                                      tasklist[index].id,
+                                      tasklist[index].isChecked,
+                                    );
                                   },
                                   icon: Icon(
-                                    taskList[index].isChecked == 'true'
+                                    tasklist[index].isChecked == 'true'
                                         ? Icons.check_box
                                         : Icons.check_box_outline_blank,
-                                    color: AppColors.primaryGreenColor,
+                                    color: tasklist[index].isChecked == 'false'
+                                        ? AppColors.primaryGreenColor
+                                        : AppColors.primaryWhiteColor,
                                   ),
                                 ),
                                 IconButton(
@@ -624,9 +641,11 @@ class ListPageState extends State<ListPage> {
                                     _showDeleteConfirmationDialog(
                                         context, index);
                                   },
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.delete_outline,
-                                    color: AppColors.primaryGreenColor,
+                                    color: tasklist[index].isChecked == 'false'
+                                        ? AppColors.primaryGreenColor
+                                        : AppColors.primaryWhiteColor,
                                   ),
                                 ),
                               ],
@@ -688,7 +707,7 @@ class ListPageState extends State<ListPage> {
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Showcase(
                   key: _four,
-                  description: 'Clique para buscar uma lista',
+                  description: 'Busque por uma lista específica',
                   child: ElevatedButton(
                     onPressed: () {
                       _showSearchDialog();
@@ -753,7 +772,7 @@ class ListPageState extends State<ListPage> {
             padding: const EdgeInsets.only(right: 12.0),
             child: Showcase(
               key: _two,
-              description: 'Clique para adicionar sua foto',
+              description: 'Adicione sua foto',
               child: const CircleAvatar(
                 radius: 16.0,
                 backgroundImage:
@@ -764,82 +783,94 @@ class ListPageState extends State<ListPage> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: Container(
-          color: AppColors.primaryGreenColor,
-          child: ListView(
-            children: <Widget>[
-              UserAccountsDrawerHeader(
-                accountName: const SizedBox(
-                  height: 70,
-                  child: Text(
-                    'Seja bem vindo!',
-                    style: TextStyle(
-                      color: AppColors.primaryWhiteColor,
-                      fontFamily: AppFonts.montserrat,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                accountEmail: Row(
-                  textDirection: TextDirection.ltr,
-                  children: <Widget>[
-                    Text(
-                      userName?.isNotEmpty == true
-                          ? userName!
-                          : 'Insira seu nome',
-                      style: const TextStyle(
+      drawer: SizedBox(
+        width: 270,
+        child: Drawer(
+          child: Container(
+            color: AppColors.primaryGreenColor,
+            child: ListView(
+              children: <Widget>[
+                UserAccountsDrawerHeader(
+                  accountName: const SizedBox(
+                    height: 70,
+                    child: Text(
+                      'Seja bem vindo!',
+                      style: TextStyle(
                         color: AppColors.primaryWhiteColor,
                         fontFamily: AppFonts.montserrat,
-                        fontSize: 24.0,
+                        fontSize: 20.0,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () {
-                        _showNameEditDialog();
-                      },
-                      icon: const Icon(
-                        Icons.edit_outlined,
-                        color: AppColors.primaryWhiteColor,
-                        size: 24,
+                  ),
+                  accountEmail: Row(
+                    textDirection: TextDirection.ltr,
+                    children: <Widget>[
+                      Text(
+                        userName?.isNotEmpty == true
+                            ? userName!
+                            : 'Insira seu nome',
+                        style: const TextStyle(
+                          color: AppColors.primaryWhiteColor,
+                          fontFamily: AppFonts.montserrat,
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                      splashColor: AppColors.secondaryGreenColor,
-                    )
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          _showNameEditDialog();
+                        },
+                        icon: const Icon(
+                          Icons.edit_outlined,
+                          color: AppColors.primaryWhiteColor,
+                          size: 24,
+                        ),
+                        splashColor: AppColors.secondaryGreenColor,
+                      )
+                    ],
+                  ),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primaryGreenColor,
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Card(
+                      color: AppColors.tertiaryGreenColor,
+                      child: SizedBox(
+                        width: 250,
+                        child: ListTile(
+                          splashColor: AppColors.primaryRedColor,
+                          title: const Text(
+                            'Sair',
+                            style: TextStyle(
+                              fontFamily: AppFonts.montserrat,
+                              fontSize: 16.0,
+                              color: AppColors.primaryWhiteColor,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.logout,
+                            color: AppColors.primaryRedColor,
+                          ),
+                          onTap: () => setState(
+                            () {
+                              Future.delayed(const Duration(milliseconds: 200),
+                                  () {
+                                context.read<AuthService>().logout();
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryGreenColor,
-                ),
-              ),
-              Card(
-                color: AppColors.tertiaryGreenColor,
-                child: ListTile(
-                  splashColor: AppColors.primaryRedColor,
-                  title: const Text(
-                    'Sair',
-                    style: TextStyle(
-                      fontFamily: AppFonts.montserrat,
-                      fontSize: 16.0,
-                      color: AppColors.primaryWhiteColor,
-                    ),
-                  ),
-                  leading: const Icon(
-                    Icons.logout,
-                    color: AppColors.primaryRedColor,
-                  ),
-                  onTap: () => setState(
-                    () {
-                      Future.delayed(const Duration(milliseconds: 200), () {
-                        context.read<AuthService>().logout();
-                      });
-                    },
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

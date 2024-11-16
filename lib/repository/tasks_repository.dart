@@ -104,6 +104,25 @@ class TasksRepository extends ChangeNotifier {
     }
   }
 
+  Future<void> updateTaskBool(String taskId, String newTaskBool) async {
+    try {
+      await db
+          .collection('users/${auth.localUser!.uid}/lists/$listId/tasks')
+          .doc(taskId)
+          .update({
+        'taskbool': newTaskBool,
+      });
+      // Atualizar o estado local da lista de tarefas
+      int index = tableTask.indexWhere((task) => task.id == taskId);
+      if (index != -1) {
+        tableTask[index].isChecked = newTaskBool;
+        notifyListeners(); // Notifica que a lista foi alterada
+      }
+    } catch (e) {
+      debugPrint("Erro ao atualizar campo taskbool: $e");
+    }
+  }
+
   Tasks findTaskById(String id) {
     // Procura a tarefa pelo ID
     return tableTask.firstWhere((task) => task.id == id, orElse: () {
