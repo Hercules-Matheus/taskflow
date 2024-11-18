@@ -1,15 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:taskflow/database/db_firestore.dart';
 import 'package:taskflow/models/list.dart';
-import 'package:taskflow/services/auth_service.dart';
 
 class ListRepository extends ChangeNotifier {
   static List<Lists> tableList = [];
   late FirebaseFirestore db;
-  late AuthService auth;
+  late User? user = FirebaseAuth.instance.currentUser;
 
-  ListRepository({required this.auth}) {
+  ListRepository() {
     _startRepository();
   }
 
@@ -23,9 +23,8 @@ class ListRepository extends ChangeNotifier {
   }
 
   Future<void> _loadInitialData() async {
-    if (auth.localUser != null) {
-      final snapshot =
-          await db.collection('users/${auth.localUser!.uid}/lists').get();
+    if (user != null) {
+      final snapshot = await db.collection('users/${user!.uid}/lists').get();
       tableList = snapshot.docs.map((doc) {
         return Lists(
           id: doc.id, // Usar ID do documento do Firestore
@@ -40,10 +39,7 @@ class ListRepository extends ChangeNotifier {
 
   void addList(Lists tasklist) async {
     tableList.add(tasklist);
-    await db
-        .collection('users/${auth.localUser!.uid}/lists')
-        .doc(tasklist.id)
-        .set({
+    await db.collection('users/${user!.uid}/lists').doc(tasklist.id).set({
       'listid': tasklist.id,
       'listname': tasklist.name,
       'listdate': tasklist.date,
@@ -55,10 +51,7 @@ class ListRepository extends ChangeNotifier {
   void removeList(Lists tasklist) async {
     debugPrint('on removeList');
     try {
-      await db
-          .collection('users/${auth.localUser!.uid}/lists')
-          .doc(tasklist.id)
-          .delete();
+      await db.collection('users/${user!.uid}/lists').doc(tasklist.id).delete();
       tableList.remove(tasklist);
       notifyListeners();
     } catch (e) {
@@ -73,7 +66,7 @@ class ListRepository extends ChangeNotifier {
       if (index != -1) {
         tableList[index] = tasklist;
         await db
-            .collection('users/${auth.localUser!.uid}/lists')
+            .collection('users/${user!.uid}/lists')
             .doc(tasklist.id)
             .update({
           'listid': tasklist.id,
@@ -92,10 +85,7 @@ class ListRepository extends ChangeNotifier {
 
   Future<void> updateListBool(String listId, String newListBool) async {
     try {
-      await db
-          .collection('users/${auth.localUser!.uid}/lists')
-          .doc(listId)
-          .update({
+      await db.collection('users/${user!.uid}/lists').doc(listId).update({
         'listbool': newListBool,
       });
       // Atualizar o estado local da lista de tarefas

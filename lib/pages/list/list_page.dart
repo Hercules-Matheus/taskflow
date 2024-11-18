@@ -581,8 +581,6 @@ class ListPageState extends State<ListPage> {
                         MaterialPageRoute(
                           builder: (context) => ChangeNotifierProvider(
                             create: (_) => TasksRepository(
-                              auth: Provider.of<AuthService>(context,
-                                  listen: false),
                               listId: tasklist[index].id,
                             ),
                             child: TaskPage(

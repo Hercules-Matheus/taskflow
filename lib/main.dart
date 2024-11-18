@@ -22,9 +22,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthService()),
         ChangeNotifierProvider(
-          create: (context) => ListRepository(
-            auth: context.read<AuthService>(),
-          ),
+          create: (context) => ListRepository(),
         ), // Adiciona o TasksRepository
       ],
       child: MyApp(),
