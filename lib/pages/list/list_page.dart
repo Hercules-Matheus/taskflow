@@ -1,14 +1,19 @@
+import 'dart:io';
+import 'package:camera_camera/camera_camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:marquee/marquee.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
 import 'package:taskflow/pages/list/list_add_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:taskflow/pages/preview/preview_page.dart';
 import 'package:taskflow/pages/task/task_page.dart';
 import 'package:taskflow/repository/list_repository.dart';
 import 'package:taskflow/repository/tasks_repository.dart';
@@ -39,14 +44,19 @@ class ListPageState extends State<ListPage> {
   List<Lists> filteredLists = [];
   late ListRepository listRepository;
   final ScrollController _scrollController = ScrollController();
+  User? user = FirebaseAuth.instance.currentUser;
   int? highlightedListIndex;
   String? userName;
+  late File userProfilePic;
+  bool hasProfilePicUploaded = false;
+  String uniquekey = '';
 
   @override
   void initState() {
     super.initState();
     _checkFirstAccess();
     _loadUserNameWithRetry();
+    _loadUserProfilePic();
   }
 
   @override
@@ -114,11 +124,10 @@ class ListPageState extends State<ListPage> {
   }
 
   Future<void> _loadUserName() async {
-    User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('users')
-          .doc(user.uid)
+          .doc(user!.uid)
           .get();
       if (userDoc.exists) {
         setState(() {
@@ -129,15 +138,50 @@ class ListPageState extends State<ListPage> {
   }
 
   Future<void> _saveUserName() async {
-    User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+      await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
         'userName': _editUsernameController.text,
       });
       setState(() {
         userName = _editUsernameController.text;
       });
     }
+  }
+
+  Future<void> _loadUserProfilePic() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/profile_pic.jpg';
+      final file = File(filePath);
+      if (await file.exists()) {
+        setState(() {
+          userProfilePic = file;
+          hasProfilePicUploaded = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar a imagem: $e');
+    }
+  }
+
+  showPreview(File file) async {
+    final File? resultFile = await Get.to(() => PreviewPage(file: file));
+    if (resultFile != null) {
+      try {
+        final directory = await getApplicationDocumentsDirectory();
+        final filePath = '${directory.path}/profile_pic.jpg';
+        final savedFile = await resultFile.copy(filePath);
+        await FileImage(savedFile).evict();
+        setState(() {
+          userProfilePic = savedFile;
+          hasProfilePicUploaded = true;
+          uniquekey = DateTime.now().millisecondsSinceEpoch.toString();
+        });
+      } catch (e) {
+        debugPrint('Erro ao salvar a imagem: $e');
+      }
+    } else {}
+    Get.back();
   }
 
   void _toggleCheckbox(int index) {
@@ -770,16 +814,29 @@ class ListPageState extends State<ListPage> {
           height: 54,
         ),
         actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(right: 12.0),
-            child: Showcase(
-              key: _two,
-              description: 'Adicione sua foto',
-              child: const CircleAvatar(
-                radius: 16.0,
-                backgroundImage:
-                    AssetImage('lib/assets/images/generic-avatar.png'),
-                backgroundColor: Colors.transparent,
+          GestureDetector(
+            onTap: () => Get.to(
+              () => CameraCamera(
+                onFile: (file) async {
+                  await showPreview(file);
+                  _loadUserProfilePic();
+                },
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: Showcase(
+                key: _two,
+                description: 'Adicione sua foto',
+                child: CircleAvatar(
+                  key: ValueKey(uniquekey),
+                  radius: 20.0,
+                  backgroundImage: hasProfilePicUploaded == true
+                      ? FileImage(userProfilePic)
+                      : const AssetImage(
+                          'lib/assets/images/generic-avatar.png'),
+                  backgroundColor: Colors.transparent,
+                ),
               ),
             ),
           ),

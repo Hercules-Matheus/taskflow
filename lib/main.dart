@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:taskflow/repository/list_repository.dart';
@@ -45,7 +46,7 @@ class MyApp extends StatelessWidget {
     return ShowCaseWidget(
       blurValue: 1,
       autoPlayDelay: const Duration(seconds: 2),
-      builder: (context) => MaterialApp(
+      builder: (context) => GetMaterialApp(
         title: 'TaskFlow',
         color: AppColors.primaryWhiteColor,
         theme: ThemeData(

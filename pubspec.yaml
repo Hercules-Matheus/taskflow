@@ -49,6 +49,10 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   shared_preferences: ^2.3.3
   showcaseview: ^3.0.0
+  camera_camera: ^3.0.0
+  image_picker: ^1.1.2
+  get: ^4.6.6
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
