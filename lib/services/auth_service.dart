@@ -8,7 +8,7 @@ class AuthException implements Exception {
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  User? localUser;
+  late User? localUser = FirebaseAuth.instance.currentUser;
   bool isLoading = true;
 
   AuthService() {
@@ -24,7 +24,7 @@ class AuthService extends ChangeNotifier {
   }
 
   _getUser() {
-    localUser = _auth.currentUser;
+    localUser;
     notifyListeners();
   }
 

@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
+import 'package:taskflow/pages/login/recover_password.dart';
 import 'package:taskflow/services/auth_service.dart';
 import 'package:taskflow/services/social_login.dart';
 import 'package:taskflow/pages/list/list_page.dart';
@@ -289,10 +290,19 @@ class _LoginPageState extends State<LoginPage> {
                               bottom: 10.0,
                             ),
                             child: GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RecoverPassword(),
+                                  ),
+                                );
+                              },
                               child: Text(
                                 "Esqueceu a senha?",
                                 style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColors.primaryGreenColor,
                                   fontFamily: AppFonts.montserrat,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 12.0,

@@ -60,17 +60,21 @@ class ListPageState extends State<ListPage> {
     }
   }
 
+  @override
+  void dispose() {
+    listRepository.removeListener(_updateTaskList);
+    _searchController.dispose();
+    _editUsernameController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _updateTaskList() {
+    if (!mounted) return;
     setState(() {
       tasklist = listRepository.getList();
       filteredLists = tasklist;
     });
-  }
-
-  @override
-  void dispose() {
-    listRepository.removeListener(_updateTaskList);
-    super.dispose();
   }
 
   Future<void> _loadUserNameWithRetry() async {

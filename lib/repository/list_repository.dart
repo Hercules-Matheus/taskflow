@@ -3,19 +3,35 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:taskflow/database/db_firestore.dart';
 import 'package:taskflow/models/list.dart';
+import 'package:taskflow/services/auth_service.dart';
 
 class ListRepository extends ChangeNotifier {
   static List<Lists> tableList = [];
   late FirebaseFirestore db;
   late User? user = FirebaseAuth.instance.currentUser;
 
-  ListRepository() {
+  ListRepository({required AuthService authService}) {
+    authService.addListener(() {
+      user = authService.localUser;
+      if (user != null) {
+        _loadInitialData();
+      }
+    }); // Carregar dados do usuário ao logar } });
     _startRepository();
+  }
+
+  void update(AuthService authService) {
+    user = authService.localUser;
+    if (user != null) {
+      _loadInitialData();
+    }
   }
 
   Future<void> _startRepository() async {
     await _startFirestore();
-    await _loadInitialData(); // Carregue os dados aqui
+    if (user != null) {
+      await _loadInitialData();
+    } // Carregue os dados aqui
   }
 
   _startFirestore() {
