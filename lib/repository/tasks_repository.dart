@@ -34,7 +34,7 @@ class TasksRepository extends ChangeNotifier {
             id: doc.id,
             name: doc['taskname'],
             date: doc['taskdate'],
-            isChecked: doc['taskbool'],
+            isChecked: doc['taskcompleted'],
             listId: doc['listid'],
           );
         }).toList();
@@ -55,7 +55,7 @@ class TasksRepository extends ChangeNotifier {
         'taskid': task.id,
         'taskname': task.name,
         'taskdate': task.date,
-        'taskbool': task.isChecked,
+        'taskcompleted': task.isChecked,
         'listid': task.listId,
       });
       notifyListeners(); // Notifica que a lista foi alterada
@@ -93,7 +93,7 @@ class TasksRepository extends ChangeNotifier {
             .update({
           'taskname': task.name,
           'taskdate': task.date,
-          'taskbool': task.isChecked,
+          'taskcompleted': task.isChecked,
           'listid': task.listId,
         });
         notifyListeners(); // Notifica que a lista foi alterada
@@ -103,22 +103,23 @@ class TasksRepository extends ChangeNotifier {
     }
   }
 
-  Future<void> updateTaskBool(String taskId, String newTaskBool) async {
+  Future<void> updateTaskCompleted(
+      String taskId, String newtaskcompleted) async {
     try {
       await db
           .collection('users/${user!.uid}/lists/$listId/tasks')
           .doc(taskId)
           .update({
-        'taskbool': newTaskBool,
+        'taskcompleted': newtaskcompleted,
       });
       // Atualizar o estado local da lista de tarefas
       int index = tableTask.indexWhere((task) => task.id == taskId);
       if (index != -1) {
-        tableTask[index].isChecked = newTaskBool;
+        tableTask[index].isChecked = newtaskcompleted;
         notifyListeners(); // Notifica que a lista foi alterada
       }
     } catch (e) {
-      debugPrint("Erro ao atualizar campo taskbool: $e");
+      debugPrint("Erro ao atualizar campo taskcompleted: $e");
     }
   }
 

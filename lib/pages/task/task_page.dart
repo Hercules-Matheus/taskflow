@@ -519,8 +519,10 @@ class TaskPageState extends State<TaskPage> {
                             : AppColors.primaryGreenColor,
                         shape: isHighLighted
                             ? RoundedRectangleBorder(
-                                side: const BorderSide(
-                                    color: AppColors.primaryGreenColor,
+                                side: BorderSide(
+                                    color: tasks[index].isChecked == 'false'
+                                        ? AppColors.primaryGreenColor
+                                        : AppColors.secondaryGreenColor,
                                     width: 2.0),
                                 borderRadius: BorderRadius.circular(8.0),
                               )
@@ -540,7 +542,7 @@ class TaskPageState extends State<TaskPage> {
                                     onPressed: () {
                                       setState(() {
                                         _toggleCheckbox(index);
-                                        tasksRepository.updateTaskBool(
+                                        tasksRepository.updateTaskCompleted(
                                           tasks[index].id,
                                           tasks[index].isChecked,
                                         );

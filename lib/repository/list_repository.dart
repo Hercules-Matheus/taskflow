@@ -46,7 +46,7 @@ class ListRepository extends ChangeNotifier {
           id: doc.id, // Usar ID do documento do Firestore
           name: doc['listname'],
           date: doc['listdate'],
-          isChecked: doc['listbool'].toString(),
+          isChecked: doc['listcompleted'].toString(),
         );
       }).toList();
       notifyListeners();
@@ -59,7 +59,7 @@ class ListRepository extends ChangeNotifier {
       'listid': tasklist.id,
       'listname': tasklist.name,
       'listdate': tasklist.date,
-      'listbool': tasklist.isChecked
+      'listcompleted': tasklist.isChecked
     });
     notifyListeners();
   }
@@ -88,7 +88,7 @@ class ListRepository extends ChangeNotifier {
           'listid': tasklist.id,
           'listname': tasklist.name,
           'listdate': tasklist.date,
-          'listbool': tasklist.isChecked
+          'listcompleted': tasklist.isChecked
         });
         notifyListeners();
       } else {
@@ -99,19 +99,20 @@ class ListRepository extends ChangeNotifier {
     }
   }
 
-  Future<void> updateListBool(String listId, String newListBool) async {
+  Future<void> updateListCompleted(
+      String listId, String newlistcompleted) async {
     try {
       await db.collection('users/${user!.uid}/lists').doc(listId).update({
-        'listbool': newListBool,
+        'listcompleted': newlistcompleted,
       });
       // Atualizar o estado local da lista de tarefas
       int index = tableList.indexWhere((tasklist) => tasklist.id == listId);
       if (index != -1) {
-        tableList[index].isChecked = newListBool;
+        tableList[index].isChecked = newlistcompleted;
         notifyListeners(); // Notifica que a lista foi alterada
       }
     } catch (e) {
-      debugPrint("Erro ao atualizar campo listbool: $e");
+      debugPrint("Erro ao atualizar campo listcompleted: $e");
     }
   }
 

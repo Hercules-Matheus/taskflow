@@ -645,8 +645,10 @@ class ListPageState extends State<ListPage> {
                           : AppColors.primaryGreenColor,
                       shape: isHighLighted
                           ? RoundedRectangleBorder(
-                              side: const BorderSide(
-                                  color: AppColors.primaryGreenColor,
+                              side: BorderSide(
+                                  color: tasklist[index].isChecked == 'false'
+                                      ? AppColors.primaryGreenColor
+                                      : AppColors.secondaryGreenColor,
                                   width: 2.0),
                               borderRadius: BorderRadius.circular(8.0),
                             )
@@ -666,7 +668,7 @@ class ListPageState extends State<ListPage> {
                                   iconSize: 28,
                                   onPressed: () {
                                     _toggleCheckbox(index);
-                                    listRepository.updateListBool(
+                                    listRepository.updateListCompleted(
                                       tasklist[index].id,
                                       tasklist[index].isChecked,
                                     );
