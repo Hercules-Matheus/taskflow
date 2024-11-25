@@ -717,6 +717,7 @@ class ListPageState extends State<ListPage> {
                 child: Showcase(
                   key: _three,
                   description: 'Clique para adicionar uma lista',
+                  targetPadding: const EdgeInsets.all(5),
                   child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.push(
@@ -756,6 +757,7 @@ class ListPageState extends State<ListPage> {
                 child: Showcase(
                   key: _four,
                   description: 'Busque por uma lista específica',
+                  targetPadding: const EdgeInsets.all(5),
                   child: ElevatedButton(
                     onPressed: () {
                       _showSearchDialog();

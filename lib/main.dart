@@ -49,6 +49,7 @@ class MyApp extends StatelessWidget {
       builder: (context) => GetMaterialApp(
         title: 'TaskFlow',
         color: AppColors.primaryWhiteColor,
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: AppColors.primaryWhiteColor,
           visualDensity: VisualDensity.adaptivePlatformDensity,
