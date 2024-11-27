@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "348437523156-dkvsauedsm378joidk2vb5o4cif7kf7u.apps.googleusercontent.com",
+          "client_id": "348437523156-mntaegv5n5k070dnjv5h837hgopq7f3d.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.taskflow",
-            "certificate_hash": "2eab8fefea3d7d1ffd605a937cdff22a3cd3d8cc"
+            "certificate_hash": "d297ec99bd90f2130db9a1ba1c332aaa04f7af1e"
           }
         },
         {
