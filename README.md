@@ -1,6 +1,6 @@
-# to_do_app
+# Taskflow
 
-A new Flutter project.
+taskflow is a to-do list app, developed for a college work using flutter SDK!
 
 ## Getting Started
 
