@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/assets/fonts/app_fonts.dart';
+import 'package:taskflow/pages/login/login_page.dart';
 
 class RecoverPassword extends StatefulWidget {
   const RecoverPassword({super.key});
@@ -33,17 +34,159 @@ class _RecoverPassword extends State<RecoverPassword> {
   Future<void> _sendPasswordResetEmail() async {
     try {
       await _auth.sendPasswordResetEmail(email: _emailController.text);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Email de redefinição de senha enviado.'),
-        ),
-      );
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              icon: Transform.rotate(
+                angle: 3.14 / 12,
+                child: const Icon(
+                  Icons.send,
+                  size: 30,
+                  color: AppColors.primaryGreenColor,
+                ),
+              ),
+              title: const Text(
+                "Email enviado",
+                style: TextStyle(
+                  fontFamily: AppFonts.montserrat,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              content: const Text(
+                "Confira seu email e redefina sua senha",
+                style: TextStyle(
+                  fontFamily: AppFonts.montserrat,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              actions: [
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
+                    style: const ButtonStyle(
+                      iconColor:
+                          WidgetStatePropertyAll(AppColors.primaryWhiteColor),
+                      overlayColor: WidgetStatePropertyAll(
+                        AppColors.secondaryGreenColor,
+                      ),
+                      backgroundColor:
+                          WidgetStatePropertyAll(AppColors.primaryGreenColor),
+                      padding: WidgetStatePropertyAll(
+                        EdgeInsets.only(
+                            left: 20.0, right: 20.0, top: 15.0, bottom: 15.0),
+                      ),
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(50.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      "Retornar ao login",
+                      style: TextStyle(
+                        fontFamily: AppFonts.montserrat,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primaryWhiteColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          });
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //     content: Text('Email de redefinição de senha enviado.'),
+      //   ),
+      // );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao enviar email de redefinição de senha: $e'),
-        ),
-      );
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              icon: const Icon(
+                Icons.report,
+                size: 30,
+                color: AppColors.primaryRedColor,
+              ),
+              title: const Text(
+                "Ops...",
+                style: TextStyle(
+                  fontFamily: AppFonts.montserrat,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              content: const Text(
+                "Erro ao enviar email de redefinição",
+                style: TextStyle(
+                  fontFamily: AppFonts.montserrat,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              actions: [
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: const ButtonStyle(
+                      iconColor:
+                          WidgetStatePropertyAll(AppColors.primaryWhiteColor),
+                      overlayColor: WidgetStatePropertyAll(
+                        AppColors.primaryRedColor,
+                      ),
+                      backgroundColor:
+                          WidgetStatePropertyAll(AppColors.primaryGreenColor),
+                      padding: WidgetStatePropertyAll(
+                        EdgeInsets.only(
+                            left: 20.0, right: 20.0, top: 15.0, bottom: 15.0),
+                      ),
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(50.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      "Fechar",
+                      style: TextStyle(
+                        fontFamily: AppFonts.montserrat,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primaryWhiteColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          });
+
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text('Erro ao enviar email de redefinição de senha: $e'),
+      //   ),
+      // );
     }
   }
 

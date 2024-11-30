@@ -66,7 +66,7 @@ class TaskPageState extends State<TaskPage> {
 
   showTaskTitle(index) {
     if (filteredTasks[index].date.isNotEmpty &&
-        filteredTasks[index].name.length > 25) {
+        filteredTasks[index].name.length > 24) {
       return SizedBox(
         height: 60,
         child: Column(
@@ -669,7 +669,7 @@ class TaskPageState extends State<TaskPage> {
     );
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: AppColors.primaryGreenColor,
         toolbarHeight: 64,

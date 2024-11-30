@@ -47,20 +47,19 @@ class MyApp extends StatelessWidget {
       blurValue: 1,
       autoPlayDelay: const Duration(seconds: 2),
       builder: (context) => GetMaterialApp(
-        title: 'TaskFlow',
-        color: AppColors.primaryWhiteColor,
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primaryColor: AppColors.primaryWhiteColor,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: const AuthCheck(),
-        routes: routes,
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        supportedLocales: const [
-          Locale('pt', 'BR'),
-        ],
-      ),
+          title: 'TaskFlow',
+          color: AppColors.primaryWhiteColor,
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primaryColor: AppColors.primaryWhiteColor,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+          ),
+          home: const AuthCheck(),
+          routes: routes,
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          supportedLocales: const [
+            Locale('pt', 'BR'),
+          ]),
     );
   }
 }

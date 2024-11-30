@@ -13,6 +13,7 @@ import 'package:taskflow/assets/colors/app_colors.dart';
 import 'package:taskflow/models/list.dart';
 import 'package:taskflow/pages/list/list_add_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:taskflow/pages/login/login_page.dart';
 import 'package:taskflow/pages/preview/preview_page.dart';
 import 'package:taskflow/pages/task/task_page.dart';
 import 'package:taskflow/repository/list_repository.dart';
@@ -582,14 +583,6 @@ class ListPageState extends State<ListPage> {
       ),
     );
 
-    // const transition = Hero(
-    //   tag: 'home',
-    //   child: Padding(
-    //     padding: EdgeInsets.all(16.0),
-    //     child: Text('Bem Vindo'),
-    //   ),
-    // );
-
     final body = Container(
       color: AppColors.primaryWhiteColor,
       width: MediaQuery.of(context).size.width,
@@ -616,95 +609,92 @@ class ListPageState extends State<ListPage> {
           ),
           SizedBox(
             height: 560,
-            child: Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: filteredLists.length,
-                itemBuilder: (context, index) {
-                  bool isHighLighted = index == highlightedListIndex;
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChangeNotifierProvider(
-                            create: (_) => TasksRepository(
-                              listId: tasklist[index].id,
-                            ),
-                            child: TaskPage(
-                              listId: tasklist[index].id,
-                            ),
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: filteredLists.length,
+              itemBuilder: (context, index) {
+                bool isHighLighted = index == highlightedListIndex;
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChangeNotifierProvider(
+                          create: (_) => TasksRepository(
+                            listId: tasklist[index].id,
+                          ),
+                          child: TaskPage(
+                            listId: tasklist[index].id,
                           ),
                         ),
-                      );
-                      _clearSearch();
-                    },
-                    child: Card(
-                      color: tasklist[index].isChecked == 'false'
-                          ? AppColors.secondaryWhiteColor
-                          : AppColors.primaryGreenColor,
-                      shape: isHighLighted
-                          ? RoundedRectangleBorder(
-                              side: BorderSide(
+                      ),
+                    );
+                    _clearSearch();
+                  },
+                  child: Card(
+                    color: tasklist[index].isChecked == 'false'
+                        ? AppColors.secondaryWhiteColor
+                        : AppColors.primaryGreenColor,
+                    shape: isHighLighted
+                        ? RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: tasklist[index].isChecked == 'false'
+                                    ? AppColors.primaryGreenColor
+                                    : AppColors.secondaryGreenColor,
+                                width: 2.0),
+                            borderRadius: BorderRadius.circular(8.0),
+                          )
+                        : RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                    child: SizedBox(
+                      height: 72,
+                      child: Container(
+                        alignment: Alignment.bottomLeft,
+                        child: ListTile(
+                          title: showListTitle(index),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              IconButton(
+                                iconSize: 28,
+                                onPressed: () {
+                                  _toggleCheckbox(index);
+                                  listRepository.updateListCompleted(
+                                    tasklist[index].id,
+                                    tasklist[index].isChecked,
+                                  );
+                                },
+                                icon: Icon(
+                                  tasklist[index].isChecked == 'true'
+                                      ? Icons.check_box
+                                      : Icons.check_box_outline_blank,
                                   color: tasklist[index].isChecked == 'false'
                                       ? AppColors.primaryGreenColor
-                                      : AppColors.secondaryGreenColor,
-                                  width: 2.0),
-                              borderRadius: BorderRadius.circular(8.0),
-                            )
-                          : RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                      child: SizedBox(
-                        height: 72,
-                        child: Container(
-                          alignment: Alignment.bottomLeft,
-                          child: ListTile(
-                            title: showListTitle(index),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                IconButton(
-                                  iconSize: 28,
-                                  onPressed: () {
-                                    _toggleCheckbox(index);
-                                    listRepository.updateListCompleted(
-                                      tasklist[index].id,
-                                      tasklist[index].isChecked,
-                                    );
-                                  },
-                                  icon: Icon(
-                                    tasklist[index].isChecked == 'true'
-                                        ? Icons.check_box
-                                        : Icons.check_box_outline_blank,
-                                    color: tasklist[index].isChecked == 'false'
-                                        ? AppColors.primaryGreenColor
-                                        : AppColors.primaryWhiteColor,
-                                  ),
+                                      : AppColors.primaryWhiteColor,
                                 ),
-                                IconButton(
-                                  tooltip: 'Deletar',
-                                  iconSize: 28,
-                                  onPressed: () {
-                                    _showDeleteConfirmationDialog(
-                                        context, index);
-                                  },
-                                  icon: Icon(
-                                    Icons.delete_outline,
-                                    color: tasklist[index].isChecked == 'false'
-                                        ? AppColors.primaryGreenColor
-                                        : AppColors.primaryWhiteColor,
-                                  ),
+                              ),
+                              IconButton(
+                                tooltip: 'Deletar',
+                                iconSize: 28,
+                                onPressed: () {
+                                  _showDeleteConfirmationDialog(context, index);
+                                },
+                                icon: Icon(
+                                  Icons.delete_outline,
+                                  color: tasklist[index].isChecked == 'false'
+                                      ? AppColors.primaryGreenColor
+                                      : AppColors.primaryWhiteColor,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
           const Spacer(),
@@ -789,7 +779,7 @@ class ListPageState extends State<ListPage> {
     );
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         toolbarHeight: 64,
         backgroundColor: AppColors.primaryGreenColor,
@@ -924,6 +914,13 @@ class ListPageState extends State<ListPage> {
                               Future.delayed(const Duration(milliseconds: 200),
                                   () {
                                 context.read<AuthService>().logout();
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const LoginPage(),
+                                  ),
+                                  (Route<dynamic> route) => false,
+                                );
                               });
                             },
                           ),
