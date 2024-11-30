@@ -11,5 +11,5 @@ class Lists {
     required this.name,
     required this.date,
     required this.isChecked,
-  }) : id = id ?? const Uuid().v4(); // Gera um ID se não fornecido
+  }) : id = id ?? const Uuid().v4();
 }

@@ -109,84 +109,74 @@ class _RecoverPassword extends State<RecoverPassword> {
               ],
             );
           });
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(
-      //     content: Text('Email de redefinição de senha enviado.'),
-      //   ),
-      // );
     } catch (e) {
       showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              icon: const Icon(
-                Icons.report,
-                size: 30,
-                color: AppColors.primaryRedColor,
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            icon: const Icon(
+              Icons.report,
+              size: 30,
+              color: AppColors.primaryRedColor,
+            ),
+            title: const Text(
+              "Ops...",
+              style: TextStyle(
+                fontFamily: AppFonts.montserrat,
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
               ),
-              title: const Text(
-                "Ops...",
-                style: TextStyle(
-                  fontFamily: AppFonts.montserrat,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                ),
+            ),
+            content: const Text(
+              "Erro ao enviar email de redefinição",
+              style: TextStyle(
+                fontFamily: AppFonts.montserrat,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
-              content: const Text(
-                "Erro ao enviar email de redefinição",
-                style: TextStyle(
-                  fontFamily: AppFonts.montserrat,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              actions: [
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    style: const ButtonStyle(
-                      iconColor:
-                          WidgetStatePropertyAll(AppColors.primaryWhiteColor),
-                      overlayColor: WidgetStatePropertyAll(
-                        AppColors.primaryRedColor,
-                      ),
-                      backgroundColor:
-                          WidgetStatePropertyAll(AppColors.primaryGreenColor),
-                      padding: WidgetStatePropertyAll(
-                        EdgeInsets.only(
-                            left: 20.0, right: 20.0, top: 15.0, bottom: 15.0),
-                      ),
-                      shape: WidgetStatePropertyAll(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(50.0),
-                          ),
+            ),
+            actions: [
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: const ButtonStyle(
+                    iconColor:
+                        WidgetStatePropertyAll(AppColors.primaryWhiteColor),
+                    overlayColor: WidgetStatePropertyAll(
+                      AppColors.primaryRedColor,
+                    ),
+                    backgroundColor:
+                        WidgetStatePropertyAll(AppColors.primaryGreenColor),
+                    padding: WidgetStatePropertyAll(
+                      EdgeInsets.only(
+                          left: 20.0, right: 20.0, top: 15.0, bottom: 15.0),
+                    ),
+                    shape: WidgetStatePropertyAll(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(50.0),
                         ),
                       ),
                     ),
-                    child: const Text(
-                      "Fechar",
-                      style: TextStyle(
-                        fontFamily: AppFonts.montserrat,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.primaryWhiteColor,
-                      ),
+                  ),
+                  child: const Text(
+                    "Fechar",
+                    style: TextStyle(
+                      fontFamily: AppFonts.montserrat,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primaryWhiteColor,
                     ),
                   ),
                 ),
-              ],
-            );
-          });
-
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     content: Text('Erro ao enviar email de redefinição de senha: $e'),
-      //   ),
-      // );
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
