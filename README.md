@@ -4,7 +4,7 @@ Taskflow é um aplicativo to-do list, desenvolvido para um trabalho de faculdade
 
 ## Integrantes do grupo
 
-Hercules Matheus Lima Silva - 12823214720
+Hercules Matheus Lima Silva - 12823214720<br>
 Caique da Silva Miranda Santos - 12723216257
 
 ## App link
