@@ -1,16 +1,20 @@
 # Taskflow
 
-taskflow is a to-do list app, developed for a college work using flutter SDK!
+Taskflow é um aplicativo to-do list, desenvolvido para um trabalho de faculdade usando o flutter SDK!
 
-## Getting Started
+## Integrantes do grupo
 
-This project is a starting point for a Flutter application.
+Hercules Matheus Lima Silva - 12823214720
+Caique da Silva Miranda Santos - 12723216257
 
-A few resources to get you started if this is your first Flutter project:
+## App link
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+https://github.com/Hercules-Matheus/taskflow/releases/tag/v1.0.1
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Demo video
+
+https://youtu.be/En_KTMqq4Kw?si=QO_5wqLEUyQHdREs
+
+## Como instalar
+
+Clique no link do app, ou acesse a sessão "Releases" desse repositório, baixe o apk, habilite a instalação de fontes desconhecidas e instale o aplicativo, atualmente está disponível apenas para Android 13 ou superior.
